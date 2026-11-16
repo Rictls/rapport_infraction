@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F3864">
+<title>Rapports APJA – hors ligne</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+:root{--navy:#1F3864;--navy2:#2c4d85;--ink:#1d2433;--mute:#667085;--line:#d9dee7;--bg:#f3f5f9;--card:#fff;--warn:#fff3b0;--red:#C00000;--ok:#1e7a46}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+header.top{position:sticky;top:0;z-index:10;background:var(--navy);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:10px}
+header.top h1{font-size:16px;margin:0;flex:1;letter-spacing:.2px}
+header.top small{opacity:.75;font-weight:400}
+.iconbtn{background:rgba(255,255,255,.12);border:0;color:#fff;border-radius:8px;padding:7px 10px;font-size:13px;cursor:pointer}
+.models{background:#fff;border-bottom:1px solid var(--line);padding:10px 12px}
+.picker{display:flex;align-items:center;gap:12px;width:100%;max-width:1368px;margin:0 auto;border:1px solid var(--line);background:#fbfcfe;border-radius:12px;padding:9px 12px;cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
+.picker:hover{border-color:#b9c6dc}
+.picker .t{flex:1;min-width:0}
+.picker .n{font-weight:650;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.picker .s{font-size:12.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.picker .chev{color:var(--mute);font-size:13px;white-space:nowrap}
+.ico{flex:0 0 auto;width:38px;height:38px;border-radius:10px;display:grid;place-items:center}
+.ico svg{width:22px;height:22px}
+.ico.route{background:#e7eefb;color:#1F3864}
+.ico.pers{background:#fbeaea;color:#a01818}
+.cat{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--mute);margin:14px 2px 6px}
+.cat:first-of-type{margin-top:4px}
+.mlist{display:grid;gap:8px}
+.mitem{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:var(--ink);width:100%}
+.mitem:hover{border-color:#b9c6dc;background:#f8fafd}
+.mitem.on{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy);background:#f3f6fc}
+.mitem .n{font-weight:650}
+.mitem .s{font-size:12.5px;color:var(--mute)}
+.mitem .num{margin-left:auto;white-space:nowrap;flex:0 0 auto;font-size:11px;color:#fff;background:var(--navy);border-radius:10px;padding:1px 7px;visibility:hidden}
+.mitem.on .num{visibility:visible}
+
+.jumpwrap{position:sticky;bottom:12px;display:flex;justify-content:flex-end;pointer-events:none;margin-top:8px;z-index:6}
+.jumpbtn{pointer-events:auto;border:0;border-radius:999px;background:var(--navy);color:#fff;font:inherit;font-size:15px;font-weight:650;padding:12px 18px;box-shadow:0 4px 14px rgba(20,30,60,.25);cursor:pointer}
+.jumpbtn span{font-weight:400;opacity:.85}.jumpbtn.done{background:#1e7a46}
+.flash{animation:flash 1.4s ease}@keyframes flash{0%,60%{background:#fff4d6;box-shadow:0 0 0 6px #fff4d6;border-radius:8px}100%{background:transparent;box-shadow:none}}
+/* ---- Aération de la saisie (v2.12) ---- */
+.fields{gap:20px;padding:6px 16px 18px}
+label.f,.learn{gap:7px;font-size:13px}
+input,select,textarea{padding:11px 12px}
+.eqbox{gap:12px;padding:12px 12px 14px;background:#f8fafd;border:1px solid var(--line);border-radius:12px}
+.eqhead{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--mute);font-weight:600}
+.tags{gap:10px}
+.tag{padding:9px 15px;line-height:1.3;font-size:13.5px;text-align:left;border-radius:16px}
+.lrow{gap:10px}
+.eqbox .hint{margin-top:2px}
+.eqcard{padding:12px}
+.eqgrid{gap:12px}
+.phr{margin-bottom:4px}
+details.grp>summary{padding:14px 16px}
+@media (min-width:901px){.mlist{grid-template-columns:1fr 1fr}}
+.models::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer;color:var(--ink);white-space:nowrap}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.tabs{display:none;background:#fff;border-bottom:1px solid var(--line)}
+.tabs button{flex:1;border:0;background:none;padding:11px 4px;font-size:14px;color:var(--mute);border-bottom:3px solid transparent;cursor:pointer}
+.tabs button.on{color:var(--navy);border-color:var(--navy);font-weight:600}
+.badge{display:inline-block;min-width:20px;padding:0 6px;border-radius:10px;background:var(--red);color:#fff;font-size:11px;line-height:18px;margin-left:4px}
+.badge.ok{background:var(--ok)}
+main{display:grid;grid-template-columns:minmax(320px,440px) 1fr;gap:16px;padding:16px;max-width:1400px;margin:0 auto}
+.pane{min-width:0}
+details.grp{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
+details.grp>summary{list-style:none;padding:12px 14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px}
+details.grp>summary::-webkit-details-marker{display:none}
+details.grp>summary::after{content:"▾";margin-left:auto;color:var(--mute);transition:transform .15s}
+details.grp:not([open])>summary::after{transform:rotate(-90deg)}
+.fill{font-size:11px;color:var(--mute);font-weight:500}
+.fields{padding:2px 14px 14px;display:grid;gap:10px}
+label.f{display:grid;gap:4px;font-size:12.5px;color:var(--mute)}
+
+input,select,textarea{font:inherit;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fbfcfe;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid #9db4dc;border-color:var(--navy2);background:#fff}
+textarea{min-height:76px;resize:vertical}
+.hint{font-size:11.5px;color:#8a93a3}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.btn{border:1px solid var(--navy);background:var(--navy);color:#fff;border-radius:9px;padding:9px 13px;font-size:14px;cursor:pointer}
+.btn.alt{background:#fff;color:var(--navy)}
+.btn.danger{background:#fff;color:var(--red);border-color:#e5b4b4}
+.paper{background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:0 2px 12px rgba(20,30,60,.06);padding:36px 40px;max-width:820px}
+.doc{font-family:Arial,Helvetica,sans-serif;font-size:13.5px;line-height:1.5;color:#000}
+.doc .g{font-weight:bold}
+.doc table.ref{border-collapse:collapse;width:100%;margin:10px 0 4px;font-size:11px}
+.doc table.ref td,.doc table.ref th{border:1px solid #999;padding:3px 6px;text-align:center}
+.doc table.ref th{background:#f2f2f2;color:#555;font-weight:bold}
+.doc h1{font-size:17px;text-align:center;color:#1F3864;margin:18px 0 16px}
+.doc p{margin:0 0 8px;text-align:justify}
+.doc h2{font-size:13.5px;text-align:center;color:#1F3864;background:#E8EDF5;border-top:1px solid #1F3864;border-bottom:1px solid #1F3864;padding:3px;margin:16px 0 10px}
+.doc h3{font-size:13.5px;text-decoration:underline;margin:10px 0 6px}
+.doc ul{margin:0 0 8px;padding-left:22px}
+.doc li{margin-bottom:4px;text-align:justify}
+.doc table.id{border-collapse:collapse;width:100%;margin:6px 0 10px;font-size:12.5px}
+.doc table.id td{border:1px solid #999;padding:3px 7px}
+.doc table.id td:first-child{background:#f2f2f2;width:32%}
+.doc .ind{padding-left:16px}
+.doc .sig{display:flex;justify-content:space-around;margin-top:28px;text-align:center}
+.doc .sig em{display:block;color:#888;font-size:11px;margin-top:6px}
+mark.m{background:var(--warn);color:#5a4a00;font-weight:bold;padding:0 2px;border-radius:2px}
+span.v{background:#ffe066;font-style:italic;color:#555;padding:0 2px}
+.vig{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:14px;max-width:820px}
+.ck{display:flex;gap:8px;align-items:flex-start;padding:5px 8px;border-radius:8px;margin:4px 0;font-size:13.5px}
+.ck.err{background:#fde3e3;color:#8f1414}.ck.warn{background:#fff4d6;color:#7a5600}.ck.ok{background:#e3f1e8;color:#1e6b3e}
+.chkbox{max-width:820px;margin-bottom:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.tl{border-left:3px solid #c9d1de;margin:10px 0 4px 6px;padding-left:10px;font-size:13px;display:grid;gap:3px}
+.tl b{display:inline-block;min-width:92px;font-variant-numeric:tabular-nums;color:var(--navy)}
+.vig h3{margin:0 0 8px;font-size:15px;color:var(--red)}
+.vig label{display:flex;gap:9px;align-items:flex-start;padding:6px 0;border-bottom:1px dashed #eee;font-size:14px}
+.vig input{width:auto;margin-top:3px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1d2433;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.on{opacity:1}
+dialog{border:0;border-radius:14px;max-width:520px;width:calc(100% - 32px);padding:20px}
+dialog::backdrop{background:rgba(10,20,40,.45)}
+dialog h2{margin:0 0 10px;color:var(--navy);font-size:18px}
+.row{display:flex;gap:8px;align-items:center;margin:8px 0}
+.row input{width:auto}
+.privacy{font-size:12px;color:var(--mute);background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.phr{font-size:12.5px;padding:6px 8px;color:var(--navy2);background:#eef3fb;border-color:#cfdbef;margin-bottom:2px}
+.learn{display:grid;gap:4px;font-size:12.5px;color:var(--mute)}
+.lrow{display:flex;gap:6px;align-items:center}
+.lrow select{flex:1}
+.lrow input{flex:1;min-width:0}
+.btn.now{flex:0 0 auto;padding:8px 10px;font-size:12.5px}
+.eqbox{display:grid;gap:8px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 11px;font-size:13px;cursor:pointer;color:var(--ink);font-family:inherit}
+.tag.del{border-style:dashed;color:var(--red)}
+.tag.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.dep{display:inline-block;font-size:11.5px;border-radius:6px;padding:2px 7px;background:#eef1f5;color:#555;margin:2px 4px 2px 0}
+.dep.ob{background:#fde3e3;color:#a01818;font-weight:600}
+.dep.fa{background:#e3f1e8;color:#1e6b3e}
+.eqhead{font-size:12.5px;color:var(--mute)}
+.eqcard{border:1px solid var(--line);border-radius:10px;padding:10px;background:#f8fafd}
+.eqtop{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:6px}
+.eqgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.eqbar{display:flex;flex-wrap:wrap;gap:8px}
+.btn.sm,select.sm{padding:7px 10px;font-size:13px;width:auto}
+.lnk{background:none;border:0;color:var(--navy2);font-size:12.5px;cursor:pointer;padding:2px 6px;text-decoration:underline}
+.lnk.red{color:var(--red)}
+@media (min-width:901px){
+  html,body{height:100%}
+  body{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+  header.top,.models{flex:0 0 auto}
+  main{flex:1 1 auto;min-height:0;width:100%;align-items:stretch}
+  .pane{overflow-y:auto;min-height:0;padding-right:6px;padding-bottom:24px;overscroll-behavior:contain}
+  #prev .actions{position:sticky;top:0;z-index:5;background:var(--bg);padding:2px 0 10px;margin-bottom:6px}
+  .pane::-webkit-scrollbar{width:9px}.pane::-webkit-scrollbar-thumb{background:#c9d1de;border-radius:6px}
+}
+/* Téléphone : texte des champs à 16 px pour éviter le zoom automatique à chaque saisie (iPhone) */
+@media (max-width:900px){
+  input,select,textarea,.phr,.lrow input,.lrow select{font-size:16px!important}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+}
+@media (max-width:900px){
+  main{grid-template-columns:1fr;padding:10px}
+  .tabs{display:flex;position:sticky;top:52px;z-index:9}
+  .pane{display:none}.pane.on{display:block}
+  .paper{padding:18px 14px}
+  .doc{font-size:12.5px}
+}
+@media print{
+  .jumpwrap,header.top,.models,.tabs,.actions,#form,.vig,.toast,.privacy,#chk{display:none!important}
+  html,body{height:auto!important;overflow:visible!important}
+  body,main{background:#fff;padding:0;display:block}
+  .pane{overflow:visible!important;height:auto!important}
+  .pane{display:block!important}
+  .paper{border:0;box-shadow:none;padding:0;max-width:none}
+  mark.m{background:none;color:#000}
+  span.v{background:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Rapports APJA <small>· hors ligne</small></h1>
+  <button class="iconbtn" id="btnProfil" title="Profil et unité">Profil</button>
+  <button class="iconbtn" id="btnParam" title="Paramètres">⚙︎</button>
+</header>
+<nav class="models" id="models"></nav>
+<dialog id="dlgCat" style="max-width:640px"><h2>Catalogue des infractions</h2><div id="catBody"></div><div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn alt" id="closeCat">Fermer</button></div></dialog>
+<dialog id="dlgModels" style="max-width:720px"><h2>Type de rapport</h2><div id="mlist"></div><div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn alt" id="closeModels">Fermer</button></div></dialog>
+<nav class="tabs" id="tabs">
+  <button data-p="form" class="on">Saisie <span class="badge" id="bMiss">0</span></button>
+  <button data-p="prev">Aperçu <span class="badge" id="bErr" style="display:none"></span></button>
+</nav>
+<main>
+  <section class="pane on" id="form"></section>
+  <section class="pane" id="prev">
+    <div class="actions">
+      <button class="btn" id="btnCopy">Copier le texte</button>
+      <button class="btn alt" id="btnWord">Télécharger Word</button>
+      <button class="btn alt" id="btnPrint">Imprimer / PDF</button>
+      <button class="btn danger" id="btnNew">Nouveau</button>
+    </div>
+    <div id="chk"></div>
+    <div class="paper"><div class="doc" id="doc"></div></div>
+    <div class="vig" id="vig"></div>
+  </section>
+</main>
+
+<dialog id="dlgProfil">
+  <h2>Profil et unité</h2>
+  <p class="hint">Ces informations sont reprises dans tous les rapports. Elles sont enregistrées sur cet appareil uniquement.</p>
+  <div id="profilFields" class="fields" style="padding:0"></div>
+  <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" id="closeProfil">Enregistrer</button></div>
+</dialog>
+<dialog id="dlgParam">
+  <h2>Paramètres</h2>
+  <label class="row"><input type="checkbox" id="optSave"> Conserver les brouillons de rapport sur cet appareil</label>
+  <p class="hint">Les listes de choix retiennent vos saisies (lieux, véhicules de service, appareils, signes constatés…), mais jamais les identités, adresses, immatriculations ni déclarations.</p>
+  <p class="hint">Conservation des brouillons : désactivée par défaut, car les rapports contiennent des données personnelles. Dans ce cas, seuls le profil et l'unité sont conservés ; les saisies sont perdues à la fermeture.</p>
+  <div class="row" style="justify-content:space-between;margin-top:16px;flex-wrap:wrap">
+    <button class="btn alt" id="btnHist">Vider les listes de saisie</button>
+    <button class="btn danger" id="btnWipe">Effacer toutes les données</button>
+    <button class="btn" id="closeParam">Fermer</button>
+  </div>
+  <p class="hint" style="margin-top:14px">Application autonome : aucune donnée n'est envoyée sur Internet. Modèles indicatifs, à adapter aux trames du LRPGN et aux consignes de l'OPJ. Version 2.17 – novembre 2026.</p>
+</dialog>
+<div class="toast" id="toast"></div>
+<datalist id="dlGrades"></datalist>
+
+<script>
+"use strict";
+/* ====================== CHAMPS ====================== */
+// [libellé, type, options|placeholder]
+const F = {
+  // Profil
+  compagnie:['Compagnie (ville)','l'],
+  unite:['Unité (COB / brigade)','l'],
+  codeUnite:['Code unité','l'],
+  redGrade:['Grade du rédacteur','g'],
+  redReserve:['Réserviste','s',['oui','non']],
+  redNom:['Prénom NOM du rédacteur','t'],
+  redQualite:['Qualité judiciaire','s',['Agent de police judiciaire adjoint','Agent de police judiciaire']],
+  redLieu:['Détaché pour emploi à','t','ex. PORNIC'],
+  opjGrade:['Grade de l\'OPJ','g'],
+  opjNom:['Prénom NOM de l\'OPJ','t'],
+  opjResidence:['Résidence de l\'OPJ','t'],
+  bureau:['Ville et code postal du bureau','t','ex. PORNIC 44210'],
+  // Rédaction
+  numPV:['N° de P.V.','t'], dossier:['N° dossier justice','t'],
+  dateRed:['Date de rédaction','d'], heureRed:['Heure de rédaction','h'],
+  dateClos:['Date de clôture','d'], heureClos:['Heure de clôture','h'],
+  // Service
+  dateFaits:['Date des faits','d'],
+  equipage:['Équipage','eq'],
+  service:['Type de service','s',['surveillance générale','contrôle routier','prévention de proximité','opération anti-délinquance','service DSIR']],
+  vehService:['Véhicule de service','t','ex. Peugeot 5008 sérigraphié'],
+  commune:['Commune et code postal des faits','t'],
+  insee:['Code INSEE de la commune','t','rempli par le PVe / LRPGN'],
+  // Véhicule et route
+  heureSIV:['Heure de consultation SIV','h'], lieuSIV:['Lieu de la consultation','t','ex. avenue X, Pornic'],
+  heureConst:['Heure des constatations','h'], route:['Voie / route','t','ex. RD 213'], direction:['Direction','t'],
+  vehMarque:['Marque et modèle','t'], vehCouleur:['Couleur','t'], vehImmat:['Immatriculation','t','XX-000-XX'],
+  comportement:['Comportement du véhicule','a','ex. effectue des écarts répétés entre l\'accotement et la ligne médiane'],
+  distance:['Distance d\'observation','t','ex. 500 mètres'],
+  allure:['Description de l\'allure','a','ex. crissement des pneus, vitesse estimée, piétons présents…'],
+  rue1:['Rue de circulation de la patrouille','t'], rue2:['Rue d\'intersection','t'],
+  ctLimite:['Date limite du contrôle technique','d'],
+  ctEchu:['Contrôle technique échu ?','s',['non','oui']],
+  heureArret:['Heure du contrôle','h'], lieuArret:['Lieu d\'arrêt','t'],
+  // Personne contrôlée / mise en cause
+  civ:['Civilité','s',['M.','Mme']],
+  pNom:['NOM Prénom','t'], pNeLe:['Date de naissance','d'], pNeA:['Lieu de naissance (dépt)','t','ex. Le Mans (72)'],
+  pAdresse:['Adresse','t'], pIdentite:['Justification de l\'identité','s',['identité justifiée par une pièce officielle','identité déclarée']],
+  pieceId:['Pièce d\'identité présentée','t','ex. carte nationale d\'identité n° …'],
+  passagers:['Occupants','s',['seul à bord','1 passager','2 passagers','3 passagers','4 passagers']],
+  signes:['Signes constatés','a','haleine alcoolisée, yeux rougis, élocution hésitante… (uniquement ce qui est constaté)'],
+  declaration:['Déclaration spontanée (mot pour mot)','a'],
+  heureDep:['Heure du dépistage','h'], ethylotest:['Éthylotest (type, marque, n°)','t'],
+  resEthylotest:['Résultat éthylotest (mg/l)','t','ex. 0,07'],
+  // FNPC
+  suspType:['Nature de la suspension','s',['administrative','judiciaire']],
+  suspDu:['Suspension du','d'], suspAu:['Suspension au','d'], suspNotif:['Date de notification de la suspension','d'],
+  // Suites
+  heureAvis:['Heure du compte rendu à l\'OPJ','h'],
+  sortVeh:['Sort du véhicule','s',['laissé à la disposition du conducteur','fiche d\'immobilisation provisoire','immobilisé sur place','remis à un conducteur sobre et titulaire du permis de conduire','laissé en stationnement régulier, clés remises au conducteur','placé en fourrière sur décision de l\'OPJ']],
+  numImmo:['N° fiche d\'immobilisation','t'], typePV:['Relevé par','s',['procès-verbal électronique','procès-verbal judiciaire']], numAvis:['N° du procès-verbal','t'],
+  heurePres:['Heure de présentation à l\'OPJ','h'],
+  // Filouterie
+  heureSaisine:['Heure de la sollicitation','h'], corg:['CORG / centre opérationnel de','t','ex. Nantes'],
+  requerant:['Sollicités par','s',['le Centre d\'opérations et de renseignement de la gendarmerie (CORG)','l\'Officier de police judiciaire de permanence']],
+  requerantPrec:['Précision sur le requérant (facultatif)','t','ex. de Loire-Atlantique'],
+  restoNom:['Nom de l\'établissement','t'], restoAdresse:['Adresse de l\'établissement','t'],
+  heureArrivee:['Heure d\'arrivée sur les lieux','h'],
+  gNom:['Gérant : NOM Prénom','t'], gNeLe:['Gérant : date de naissance','d'], gNeA:['Gérant : lieu de naissance','t'], gAdresse:['Gérant : adresse','t'],
+  consommations:['Consommations','a','ex. un plat du jour, trois bières pression'], montant:['Montant (€)','t'],
+  temoins:['Témoins (identité, coordonnées)','a'],
+  armeLieu:['Où l\'arme a été découverte','t','ex. poche droite du blouson'], armeDesc:['Description de l\'arme','t','ex. couteau à steak, lame de 11 cm'],
+  heureInterp:['Heure de l\'interpellation','h'],
+  menottage:['Menottage','s',['non menotté','menotté, en raison de sa dangerosité ou d\'un risque de fuite (art. 803 CPP)']],
+  alcoolDecl:['Consommation déclarée','t','ex. quatre pintes de bière dans la journée'],
+  heureParquet:['Heure de l\'avis au parquet','h'], tribunal:['Tribunal judiciaire de','t'],
+  heureUnite:['Heure d\'arrivée à l\'unité','h'], ethylometre:['Éthylomètre (marque, n°)','t'], ethyloRes:['Résultat éthylomètre (mg/l)','t'],
+  heureCS:['Heure de placement en chambre de sûreté','h'],
+  // VIF
+  adresse:['Adresse de l\'intervention','t','n°, rue, appartement'],
+  vNom:['Victime : NOM Prénom','t'], vNeLe:['Victime : date de naissance','d'], vNeA:['Victime : lieu de naissance','t'], vTel:['Victime : téléphone','t'],
+  lienV:['Lien avec la victime','s',['concubin','conjoint','partenaire de PACS','ancien concubin','ancien conjoint']],
+  motif:['Motif de la dispute','t'],
+  faits:['Faits déclarés par la victime','a','ex. il l\'a repoussée en arrière en la saisissant à la gorge avec ses deux mains ; elle n\'est pas tombée'],
+  contexte:['Contexte (alcool, antécédents, propos)','a'],
+  lesions:['Lésions constatées','a','ex. aucune trace apparente au niveau du cou'],
+  tiers:['Tiers ayant conseillé l\'appel (facultatif)','t'],
+  comportMec:['Comportement du mis en cause','t','ex. calme, répond à nos questions'],
+  armes:['Armes au domicile','t','néant / description'], mineurs:['Mineurs présents','t','néant / …'],
+  pSexe:['Sexe','s',['M','F']], pPere:['Fils/fille de (père)','t'], pMere:['et de (mère)','t'],
+  pSituation:['Situation de famille','t','ex. concubinage'], pTel:['Téléphone','t'], pProfession:['Profession','t'], pNationalite:['Nationalité','t'],
+  portalis:['Communication électronique (Portalis)','s',['refuse','accepte']], portalisCoord:['Coordonnées Portalis','t','SMS au … / courriel …'],
+  heureNotif:['Heure de la notification des droits','h'],
+  modeNotif:['Notification des droits effectuée','s',['par l\'OPJ, par notre intermédiaire (APJA)','par un APJ, sous le contrôle de l\'OPJ','par l\'OPJ en personne']],
+  notifiant:['APJ ayant notifié (grade, prénom, nom)','t'],
+  droits:['Droits demandés','droits'],
+  mesuresVictime:['Mesures prises pour la victime','mesv'],
+  // Contrôle routier modulable
+  alcRes:['Dépistage d\'alcool','s',['non réalisé','négatif','positif']],
+  stupRes:['Dépistage de stupéfiants','s',['non réalisé','négatif','positif']],
+  signes:['Signes constatés','sig'], signesLibre:['Précision sur les signes (facultatif)','t'],
+  infr:['Infractions','infr'],
+  resFich:['Résultat de la consultation (plusieurs choix possibles)','resf'],
+  etatVictime:['État de la victime à notre arrivée','etat'],
+  // Stupéfiants
+  requisitions:['Réquisitions (procureur, date, lieux, horaires)','s',['procureur de la République de Saint-Nazaire en date du …, sur … de … h à … h','procureur de la République de Nantes en date du …, sur … de … h à … h']],
+  motifCtrl:['Motif du contrôle','s',['consultation des fichiers SIV / FVA','consultation du SNPC','infraction au code de la route','réquisitions du procureur de la République']],
+  heureMotif:['Heure des constatations','h'], lieuMotif:['Lieu des constatations','t','ex. avenue X, Pornic'],
+  resFichiers:['Résultat de la consultation','s',['défaut d\'assurance (véhicule non enregistré au FVA)','contrôle technique échu','véhicule signalé (opposition / vol)','certificat d\'immatriculation non à jour','permis du titulaire suspendu','permis du titulaire annulé','permis du titulaire invalidé (solde de points nul)','titulaire non détenteur du permis de conduire']],
+  motifDetail:['Infraction constatée','s',['franchissement d\'une ligne continue','non-respect d\'un feu rouge','non-respect d\'un arrêt « stop »','refus de priorité','excès de vitesse','usage d\'un téléphone tenu en main','défaut de port de la ceinture de sécurité','circulation sans éclairage','dépassement dangereux','circulation à gauche de la chaussée','défaut de clignotant']],
+  signesStup:['Signes constatés','a','ex. forte odeur de cannabis dans l\'habitacle, yeux rougis, pupilles dilatées (uniquement ce qui est constaté)'],
+  heureAlc:['Heure du dépistage alcool','h'], resAlc:['Résultat éthylotest','s',['négatif','positif']],
+  heureStup:['Heure du dépistage stupéfiants','h'], kitStup:['Test salivaire (marque, n° de lot, péremption)','t'],
+  heureLecture:['Heure de lecture du test','h'],
+  produitsStup:['Positif pour','t','ex. cannabis (THC) / cocaïne / opiacés / amphétamines / méthamphétamines'],
+  remise:['Remise volontaire de produit (facultatif)','a','description, quantité, emplacement'],
+  retention:['Permis de conduire','s',['retenu sur décision de l\'OPJ / APJ (art. L. 224-1 du Code de la route)','décision laissée à l\'OPJ']],
+  numRetention:['N° avis de rétention','t'],
+  natinfMotif:['NATINF de l\'infraction ayant motivé le contrôle (facultatif)','t','ex. 1234 – libellé'],
+};
+const GRADES = ['Gendarme adjoint volontaire','Gendarme','Brigadier','Brigadier-chef','Maréchal des logis','Maréchal des logis-chef','Adjudant','Adjudant-chef','Major','Aspirant','Sous-lieutenant','Lieutenant','Capitaine','Commandant','Lieutenant-colonel','Colonel'];
+const QUALITES = ['Agent de police judiciaire adjoint','Agent de police judiciaire','Officier de police judiciaire'];
+const PROFIL = ['compagnie','unite','codeUnite','redGrade','redReserve','redNom','redQualite','redLieu','opjGrade','opjNom','opjResidence','bureau'];
+const REDAC = ['Rédaction',['numPV','dossier','dateRed','heureRed','dateClos','heureClos']];
+
+/* ====================== OUTILS ====================== */
+/* ---- Fenêtres de confirmation intégrées (fonctionnent partout, y compris dans un cadre sécurisé) ---- */
+function ask(msg, input){
+  return new Promise(res => {
+    const d = document.createElement('dialog'); d.className = 'askdlg';
+    d.innerHTML = `<p style="white-space:pre-line;margin:0 0 12px">${esc(msg)}</p>${input ? '<input type="text" style="width:100%;margin-bottom:12px">' : ''}<div class="row" style="justify-content:flex-end;gap:8px"><button type="button" class="btn alt" data-r="0">Annuler</button><button type="button" class="btn" data-r="1">OK</button></div>`;
+    document.body.appendChild(d);
+    const done = v => { try { d.close(); } catch(e) {} d.remove(); res(v); };
+    d.querySelector('[data-r="0"]').onclick = () => done(input ? null : false);
+    d.querySelector('[data-r="1"]').onclick = () => done(input ? d.querySelector('input').value : true);
+    d.addEventListener('cancel', e => { e.preventDefault(); done(input ? null : false); });
+    try { d.showModal(); } catch(e) { d.setAttribute('open', ''); }
+    const f = d.querySelector('input'); if (f) f.focus();
+  });
+}
+const askText = msg => ask(msg, true);
+
+const M = s => '\u0001' + s + '\u0002';           // champ manquant
+const VER = s => '\u0003' + s + '\u0004';         // à vérifier
+const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function H(v){
+  const has = k => v[k] != null && String(v[k]).trim() !== '';
+  const lab = k => (F[k] ? F[k][0] : k);
+  const f = k => has(k) ? String(v[k]).trim() : M(lab(k));
+  const q = k => has(k) ? '« ' + String(v[k]).trim() + ' »' : M(lab(k));
+  const d = (k, withDay) => { if (!has(k)) return M(lab(k)); const [y,m,j] = v[k].split('-').map(Number); const dt = new Date(y, m-1, j);
+    return (withDay ? JOURS[dt.getDay()] + ' ' : '') + (j === 1 ? '1er' : j) + ' ' + MOIS[m-1] + ' ' + y; };
+  const h = k => { if (!has(k)) return M(lab(k)); const [hh,mm] = v[k].split(':'); return Number(hh) + ' h ' + mm; };
+  const hl = k => { if (!has(k)) return M(lab(k)); const [hh,mm] = v[k].split(':').map(Number); return hh + (hh > 1 ? ' heures ' : ' heure ') + String(mm).padStart(2,'0') + (mm > 1 ? ' minutes' : ' minute'); };
+  const fem = v.civ === 'Mme';
+  const g = { e: fem ? 'e' : '', il: fem ? 'elle' : 'il', Il: fem ? 'Elle' : 'Il', le: fem ? 'la' : 'le', ne: fem ? 'née' : 'né',
+    int: fem ? 'l’intéressée' : 'l’intéressé', Int: fem ? 'L’intéressée' : 'L’intéressé',
+    cond: fem ? 'la conductrice' : 'le conducteur', Cond: fem ? 'La conductrice' : 'Le conducteur', civ: f('civ') };
+  const vow = s => /^[aeiouyàâéèêh]/i.test(s);
+  const de = k => has(k) ? (vow(v[k].trim()) ? 'de l\u2019' : 'du ') + v[k].trim() : 'de ' + M(lab(k));
+  const a = k => has(k) ? (vow(v[k].trim()) ? 'à l\u2019' : 'au ') + v[k].trim() : 'à ' + M(lab(k));
+  const eq = () => {
+    const L = (v.equipiers || []).filter(e => e && (e.nom || e.prenom || e.grade));
+    if (!L.length) return 'de ' + M('Équipage');
+    const one = e => { const gr = (e.grade || '').trim(); const art = gr ? (vow(gr) ? 'de l\u2019' : 'du ') + gr : 'de ' + M('Grade');
+      const nm = [(e.prenom||'').trim(), (e.nom||'').trim().toUpperCase()].filter(Boolean).join(' ') || M('Prénom NOM');
+      const ql = [e.qualite ? e.qualite : M('Qualité'), e.reserve ? 'réserviste' : ''].filter(Boolean).join(', ');
+      return art + ' ' + nm + ' (' + ql + ')'; };
+    const parts = L.map(one);
+    return parts.length === 1 ? parts[0] : parts.slice(0,-1).join(', ') + ' et ' + parts[parts.length-1];
+  };
+  return { v, has, f, q, d, h, hl, g, de, a, eq, opt: (k, s) => has(k) ? s : '' };
+}
+const p = t => ({ p: t }), b = t => ({ b: t }), sub = t => ({ sub: t }), ind = t => ({ ind: t });
+
+function occup(x){ const {g, f, has} = x; if (!has('passagers')) return M('Occupants') + '.'; return x.g && (x.f('passagers') === 'seul à bord') ? g.Il + ' est seul' + g.e + ' à bord.' : f('passagers') + ' à bord.'; }
+function pvRef(x){ return (x.has('typePV') ? x.f('typePV') : M('Relevé par (PVe ou PV judiciaire)')) + ' n° ' + x.f('numAvis'); }
+function vehSort(x){ const {f, has} = x; const v = x.f('sortVeh');
+  if (has('sortVeh') && /provisoire/i.test(v)) return 'Le véhicule fait l\u2019objet d\u2019une fiche d\u2019immobilisation provisoire n° ' + f('numImmo') + '.';
+  return 'Le véhicule est ' + f('sortVeh') + '.' + (has('sortVeh') && v.startsWith('immobilisé') ? ' Fiche d\u2019immobilisation n° ' + f('numImmo') + '.' : ''); }
+
+/* ====================== MODÈLES ====================== */
+// Liens automatiques entre champs du rapport VIF
+const SITU = { 'concubin':'concubinage', 'conjoint':'marié', 'partenaire de PACS':'pacsé (PACS)', 'ancien concubin':'séparé (ancien concubinage)', 'ancien conjoint':'divorcé ou séparé' };
+const FEM = { 'concubin':'sa concubine', 'conjoint':'son épouse', 'partenaire de PACS':'sa partenaire de PACS', 'ancien concubin':'son ancienne concubine', 'ancien conjoint':'son ancienne épouse' };
+const LIEU_LINKS = [{ from:'lieuMotif', to:'lieuArret', map: v => v || '' }];
+const VIF_LINKS = [
+  { from:'lienV', to:'pSituation', map: v => SITU[v] || '' },
+  { from:'civ', to:'pSexe', map: v => v === 'Mme' ? 'F' : v === 'M.' ? 'M' : '' },
+  { from:'adresse', to:'pAdresse', map: (v, dv) => v ? v + (dv.commune ? ', ' + dv.commune : '') : '' },
+  { from:'commune', to:'pAdresse', map: (v, dv) => dv.adresse ? dv.adresse + (v ? ', ' + v : '') : '' },
+];
+function applyLinks(m, dv, k){
+  let changed = false;
+  (m.links || []).filter(l => l.from === k).forEach(l => {
+    const auto = dv['_auto_' + l.to], cur = dv[l.to];
+    if (!cur || cur === auto) { const nv = l.map(dv[k], dv); if (nv !== cur) { dv[l.to] = nv; dv['_auto_' + l.to] = nv; changed = true; } }
+  });
+  return changed;
+}
+
+function reqText(x){
+  const {f,has} = x; if (!has('requerant')) return M('Sollicités par');
+  let t = x.f('requerant');
+  if (/Officier de police judiciaire de permanence/.test(t) && (has('opjNom') || has('opjGrade'))) t += ' (' + [x.f('opjGrade'), x.f('opjNom')].filter(Boolean).join(' ') + ')';
+  return t + (has('requerantPrec') ? ' ' + x.f('requerantPrec') : '');
+}
+
+function droitsText(x){ const D = (x.v.droits ? [].concat(x.v.droits) : []).filter(Boolean); const g = x.g;
+  if (!D.length) return `${g.Int} souhaite exercer les droits suivants : ${M('Droits demandés')}.`;
+  if (D.length === 1 && /aucun droit/.test(D[0])) return `${g.Int} ne souhaite exercer aucun de ces droits.`;
+  return `${g.Int} souhaite exercer les droits suivants : ${joinFr(D.filter(d => !/aucun droit/.test(d)))}.`; }
+function notifVif(x){
+  const {f,h,a,de,has} = x; const m = x.f('modeNotif');
+  const par = has('opjGrade') ? (/^[aeiouyàâéèêh]/i.test(x.f('opjGrade')) ? 'l\u2019' : 'le ') + x.f('opjGrade') : f('opjGrade');
+  if (/intermédiaire/.test(m)) return `À ${h('heureNotif')}, la notification orale des droits de la personne gardée à vue est effectuée par ${par} ${f('opjNom')}, Officier de police judiciaire, joint par téléphone, par notre intermédiaire (art. 63-1 du Code de procédure pénale).`;
+  if (/APJ/.test(m)) return `À ${h('heureNotif')}, notification orale des droits de la personne gardée à vue par ${f('notifiant')}, Agent de police judiciaire, sous le contrôle ${de('opjGrade')} ${f('opjNom')}, Officier de police judiciaire (art. 63-1 du Code de procédure pénale).`;
+  if (/personne/.test(m)) return `À ${h('heureNotif')}, notification des droits de la personne gardée à vue par ${par} ${f('opjNom')}, Officier de police judiciaire (art. 63-1 du Code de procédure pénale).`;
+  return `À ${h('heureNotif')}, notification des droits de la personne gardée à vue : ${M('Notification des droits effectuée')} (art. 63-1 du Code de procédure pénale).`;
+}
+
+function motifStup(x){
+  const {f,h,has} = x; const m = x.f('motifCtrl'); const veh = `véhicule ${f('vehMarque')}, immatriculé ${f('vehImmat')}`;
+  const deb = `À ${h('heureMotif')}, ${f('lieuMotif')}, `;
+  if (/SIV|FVA/.test(m)) return deb + `nous interrogeons les fichiers SIV et FVA à partir de la plaque d’immatriculation du véhicule ${f('vehMarque')}, immatriculé ${f('vehImmat')}, circulant devant nous. Il en ressort : ${f('resFichiers')}. Nous décidons de procéder au contrôle du véhicule.`;
+  if (/SNPC/.test(m)) return deb + `nous, agents expressément habilités, consultons le Système national des permis de conduire (SNPC) au sujet du titulaire du véhicule ${f('vehMarque')}, immatriculé ${f('vehImmat')}, circulant devant nous. Il en ressort : ${f('resFichiers')}. Nous décidons de procéder au contrôle du véhicule.`;
+  if (/infraction/i.test(m)) return deb + `nous constatons que le ${veh}, circulant devant nous, commet l’infraction suivante : ${f('motifDetail')}. Nous décidons de procéder au contrôle du véhicule.`;
+  if (/réquisition/i.test(m)) return deb + `en exécution des réquisitions du ${f('requisitions')} (art. L. 235-2 du Code de la route), nous procédons au contrôle du ${veh}.`;
+  return deb + `nous procédons au contrôle du ${veh}. Motif du contrôle : ${f('motifCtrl')}.`;
+}
+
+const MODELS = [
+{ id:'ct', cat:'route', nom:'Alcool + défaut de CT', sous:'Contrôle déclenché par les fichiers SIV / FVA', titre:'RAPPORT D’INFRACTION – APJA', cr:true,
+  groups:[REDAC,['Service',['dateFaits','equipage','service','vehService','commune','insee','requerant','requerantPrec','heureSaisine']],
+    ['Véhicule (SIV)',['heureSIV','lieuSIV','vehMarque','vehImmat','ctLimite']],
+    ['Contrôle du conducteur',['heureArret','lieuArret','civ','pNom','pNeLe','pNeA','pAdresse','passagers','signes','heureDep','ethylotest','declaration']],
+    ['Suites',['heureAvis','sortVeh','numImmo','typePV','numAvis','heurePres']]],
+  body:x=>{ const {f,q,d,h,g,has,de,a}=x; return [
+    ['SAISINE',[p(`Le ${d('dateFaits')}, détachés pour emploi au profit de ${f('unite')}, en uniforme et en service commandé, en compagnie ${x.eq()}, nous effectuons une mission de ${f('service')} sur la commune de ${f('commune')}, à bord du véhicule de service ${f('vehService')}.`)]],
+    ['CONSTATATIONS',[
+      p(`À ${h('heureSIV')}, ${f('lieuSIV')}, nous interrogeons les fichiers SIV et FVA à partir de la plaque d’immatriculation du véhicule ${f('vehMarque')}, immatriculé ${f('vehImmat')}, circulant devant nous. Il en ressort que ce véhicule n’est pas à jour de son contrôle technique périodique, dont la date limite était fixée au ${d('ctLimite')}.`),
+      p(`À ${h('heureArret')}, nous procédons à l’arrêt du véhicule ${f('lieuArret')}. Sur présentation de son permis de conduire, ${g.cond} est identifié${g.e} comme étant ${g.civ} ${f('pNom')}, ${g.ne} le ${d('pNeLe')} à ${f('pNeA')}, demeurant ${f('pAdresse')}. ${occup(x)}`),
+      p(`Lors du contrôle, nous constatons une forte odeur d’alcool dans l’habitacle. ${g.Cond} présente en outre les signes suivants : ${f('signes')}.`),
+      p(`${g.Int} étant l’auteur présumé d’une infraction au code de la route, nous ${g.le} soumettons à ${h('heureDep')} à une épreuve de dépistage de l’imprégnation alcoolique au moyen d’un éthylotest ${f('ethylotest')}. Le résultat est positif.`),
+      p(`Questionné${g.e} sur sa consommation, ${g.il} déclare spontanément : ${q('declaration')}.`)]],
+    ['MESURES PRISES',[
+      b(`À ${h('heureAvis')}, nous rendons compte à l’OPJ de permanence, ${f('opjGrade')} ${f('opjNom')}, qui nous ordonne de conduire ${g.int} à l’unité de ${f('bureau')} afin qu’il soit procédé aux vérifications au moyen d’un éthylomètre.`),
+      b(vehSort(x)),
+      b(`Nous relevons la contravention pour défaut de contrôle technique par ${pvRef(x)}.`),
+      b(`À ${h('heurePres')}, nous présentons ${g.int} à l’OPJ, qui prend en charge la suite de la procédure.`)]],
+    ['INFRACTION(S) CONSTATÉE(S)',[
+      sub('1. Défaut de contrôle technique'),
+      ind(`NATINF 12522 – Maintien en circulation d’un véhicule à moteur sans contrôle technique périodique – le ${d('dateFaits')} à ${h('heureArret')}, ${f('lieuArret')}, ${f('commune')} (INSEE : ${f('insee')}). Prévu par les art. R. 323-1 et R. 323-6, réprimé par l’art. R. 323-1 al. 3 du Code de la route. ${VER('à vérifier dans la base NATINF')}`),
+      sub('2. Conduite sous l’empire d’un état alcoolique'),
+      ind('Dépistage positif. Qualification (contravention ou délit) et NATINF à déterminer par l’OPJ selon le résultat de l’éthylomètre.')]],
+    ['CLÔTURE',[p('Nous avons rendu compte à l’OPJ de permanence, à la demande duquel le présent rapport est rédigé et lui est transmis.')]],
+  ];},
+  vig:['Le dépistage repose sur l’infraction (défaut de CT) : art. L. 234-3 du Code de la route, sur ordre de l’OPJ pour l’APJA.','Ne décrire que les signes d’alcoolisation réellement constatés.','Citer mot pour mot les déclarations spontanées.','Indiquer le sort du véhicule et le n° de la fiche d’immobilisation.','Vérifier les références NATINF.']
+},
+{ id:'alc', cat:'route', nom:'Alcool – conduite erratique', sous:'Contrôle déclenché par une infraction de conduite', titre:'RAPPORT D’INFRACTION – APJA', cr:true,
+  groups:[REDAC,['Service',['dateFaits','equipage','service','vehService','commune','insee','requerant','requerantPrec','heureSaisine']],
+    ['Constatations',['heureConst','route','direction','vehMarque','vehCouleur','vehImmat','comportement','distance','lieuArret']],
+    ['Contrôle du conducteur',['heureArret','civ','pNom','pNeLe','pNeA','pAdresse','passagers','signes','declaration','heureDep','ethylotest']],
+    ['Contrôle technique',['ctEchu','ctLimite']],
+    ['Suites',['heureAvis','sortVeh','numImmo','typePV','numAvis','heurePres']]],
+  body:x=>{ const {f,q,d,h,g,has,de,a}=x; const ct = x.f('ctEchu') === 'oui'; return [
+    ['SAISINE',[p(`Le ${d('dateFaits')}, détachés pour emploi au profit de ${f('unite')}, en uniforme et en service commandé, nous effectuons un service de ${f('service')} sur la commune de ${f('commune')}, en compagnie ${x.eq()}, à bord du véhicule de service ${f('vehService')}.`)]],
+    ['CONSTATATIONS',[
+      p(`À ${h('heureConst')}, alors que nous circulons sur la ${f('route')} en direction de ${f('direction')}, nous constatons qu’un véhicule ${f('vehMarque')}, de couleur ${f('vehCouleur')}, immatriculé ${f('vehImmat')}, circulant devant nous, ${f('comportement')}, sur une distance d’environ ${f('distance')}.`),
+      p(`Ce comportement caractérisant une infraction aux règles de circulation, nous décidons de procéder au contrôle du véhicule. Nous actionnons nos avertisseurs lumineux et sonores. Le véhicule s’arrête, sur nos indications, ${f('lieuArret')}.`),
+      p(`À ${h('heureArret')}, nous procédons au contrôle. Sur présentation de son permis de conduire et des pièces du véhicule, ${g.cond} est identifié${g.e} comme étant ${g.civ} ${f('pNom')}, ${g.ne} le ${d('pNeLe')} à ${f('pNeA')}, demeurant ${f('pAdresse')}. ${occup(x)}`),
+      p(`Lors du contrôle, nous constatons : ${f('signes')}. Interrogé${g.e}, ${g.il} déclare spontanément : ${q('declaration')}.`),
+      p(`${g.Int} étant l’auteur présumé d’une infraction au code de la route, nous ${g.le} soumettons à ${h('heureDep')} à une épreuve de dépistage de l’imprégnation alcoolique au moyen d’un éthylotest ${f('ethylotest')}. Le résultat est positif.`),
+      ...(ct ? [p(`Dans le même temps, nous interrogeons le Système d’immatriculation des véhicules (SIV). Il en ressort que le contrôle technique périodique du véhicule est échu depuis le ${d('ctLimite')}.`)] : [])]],
+    ['MESURES PRISES',[
+      b(`À ${h('heureAvis')}, nous rendons compte à l’OPJ territorialement compétent, ${f('opjGrade')} ${f('opjNom')}, qui nous demande de conduire ${g.int} à l’unité de ${f('bureau')} afin qu’il soit procédé aux vérifications au moyen d’un éthylomètre.`),
+      b(`Nous informons ${g.int} qu’${g.il} va être conduit${g.e} à l’unité pour la suite des vérifications. ${g.Il} nous suit librement.`),
+      b(vehSort(x)),
+      ...(ct ? [b(`Défaut de contrôle technique relevé par ${pvRef(x)}.`)] : []),
+      b(`À ${h('heurePres')}, nous présentons ${g.int} à l’OPJ, qui prend en charge la suite de la procédure.`)]],
+    ['INFRACTION(S) CONSTATÉE(S)',[
+      sub('1. Conduite sous l’empire d’un état alcoolique'),
+      ind('Dépistage positif. Qualification (contravention ou délit) et NATINF à déterminer par l’OPJ selon le résultat de l’éthylomètre.'),
+      ...(ct ? [sub('2. Défaut de contrôle technique'), ind(`NATINF 12522 – Maintien en circulation d’un véhicule à moteur sans contrôle technique périodique – le ${d('dateFaits')} à ${h('heureArret')}, ${f('lieuArret')}, ${f('commune')} (INSEE : ${f('insee')}). Prévu par les art. R. 323-1 et R. 323-6, réprimé par l’art. R. 323-1 al. 3 du Code de la route. ${VER('à vérifier dans la base NATINF')}`)] : [])]],
+    ['CLÔTURE',[p(`Le présent rapport est rédigé à la demande ${de('opjGrade')} ${f('opjNom')}, Officier de police judiciaire, à qui il est transmis.`)]],
+  ];},
+  vig:['Décrire précisément la conduite observée : c’est l’infraction qui fonde le dépistage (art. L. 234-3).','Lieu d’arrêt : une seule désignation de la route, cohérente du début à la fin.','Heures du dépistage et de l’avis à l’OPJ, type et n° de l’éthylotest.','Sort du véhicule : jamais laissé à la conduite de la personne contrôlée positive.']
+},
+{ id:'pc', deps:['sortVeh'], hide:(k, v) => k === 'numImmo' && !/^immobilisé|provisoire/.test(v.sortVeh || ''), cat:'route', nom:'Permis suspendu', sous:'Conduite malgré suspension, vérifiée au SNPC', titre:'RAPPORT D’INFRACTION', cr:true,
+  groups:[REDAC,['Service',['dateFaits','heureConst','equipage','service','vehService','rue1','commune','insee','requerant','requerantPrec','heureSaisine']],
+    ['Constatations',['rue2','vehMarque','vehImmat','allure','lieuArret','heureArret']],
+    ['Conducteur',['civ','pNom','pNeLe','pNeA','pAdresse','pieceId','passagers','declaration','heureDep','ethylotest']],
+    ['Fichier des permis (SNPC)',['suspType','suspDu','suspAu','suspNotif']],
+    ['Suites',['heureAvis','sortVeh','numImmo','heurePres']]],
+  body:x=>{ const {f,q,d,h,g,de,a}=x; return [
+    ['SAISINE',[p(`Le ${d('dateFaits',true)}, nous trouvant en service de ${f('service')} sur la commune de ${f('commune')}, en uniforme, en compagnie ${x.eq()}, à bord du véhicule de service ${f('vehService')}, nous circulons ${f('rue1')}.`)]],
+    ['CONSTATATIONS',[
+      p(`À ${h('heureConst')}, arrivant à l’intersection avec ${f('rue2')}, nous apercevons un véhicule ${f('vehMarque')}, immatriculé ${f('vehImmat')}, qui s’y engage à une allure manifestement excessive pour la circulation en agglomération : ${f('allure')}.`),
+      p(`Nous actionnons nos avertisseurs lumineux et sonores. ${g.Cond} obtempère et s’arrête ${f('lieuArret')}. Nous procédons au contrôle à ${h('heureArret')}.`),
+      p(`${g.Cond} est identifié${g.e}, sur présentation de ${f('pieceId')}, comme étant ${g.civ} ${f('pNom')}, ${g.ne} le ${d('pNeLe')} à ${f('pNeA')}, demeurant ${f('pAdresse')}. ${occup(x)}`),
+      p(`Invité${g.e} à présenter son permis de conduire, ${g.il} déclare spontanément : ${q('declaration')}.`),
+      p(`À ${h('heureDep')}, ${g.int} étant l’auteur présumé d’une infraction au code de la route, nous ${g.le} soumettons à une épreuve de dépistage de l’imprégnation alcoolique au moyen d’un éthylotest ${f('ethylotest')}. Le résultat est négatif.`),
+      p(`Nous, agents expressément habilités, consultons le Système national des permis de conduire (SNPC). Il en ressort que le permis de conduire de ${g.civ} ${f('pNom')} fait l’objet d’une suspension ${f('suspType')} du ${d('suspDu')} au ${d('suspAu')}, notifiée le ${d('suspNotif')}.`)]],
+    ['MESURES PRISES',[
+      b(`À ${h('heureAvis')}, nous rendons compte par téléphone ${a('opjGrade')} ${f('opjNom')}, Officier de police judiciaire de permanence, qui nous demande de conduire ${g.int} à l’unité de ${f('bureau')}.`),
+      b(`${g.Int} accepte de nous suivre librement afin d’être entendu${g.e} par l’Officier de police judiciaire.`),
+      b(vehSort(x)),
+      b(`À ${h('heurePres')}, nous présentons ${g.int} à l’Officier de police judiciaire de permanence, pour la suite de la procédure.`)]],
+    ['INFRACTION(S) CONSTATÉE(S)',[
+      ind(`NATINF 5707 – Conduite d’un véhicule à moteur malgré une suspension administrative ou judiciaire du permis de conduire – le ${d('dateFaits')} de ${h('heureConst')} à ${h('heureArret')}, ${f('lieuArret')}, ${f('commune')} (INSEE : ${f('insee')}). Prévue par les art. L. 224-16 I et L. 232-4 al. 5, réprimée par l’art. L. 224-16 du Code de la route. ${VER('à vérifier dans la base NATINF')}`)]],
+    ['CLÔTURE',[p('Nous avons rendu compte à l’Officier de police judiciaire de permanence, à qui le présent rapport est transmis.')]],
+  ];},
+  vig:['La date de notification de la suspension est essentielle : elle établit que le conducteur en avait connaissance.','Sans mesure de vitesse, décrire les faits observés plutôt que « vive allure ».','Préciser la pièce d’identité présentée.','Indiquer le sort du véhicule.']
+},
+{ id:'filou', reqInline:true, cat:'pers', nom:'Filouterie + arme D', sous:'Interpellation (art. 73 CPP) et garde à vue', titre:'RAPPORT D’INFRACTION ET D’INTERPELLATION', cpp73:true,
+  groups:[REDAC,['Saisine',['dateFaits','equipage','requerant','requerantPrec','heureSaisine','restoNom','restoAdresse','commune','insee','heureArrivee']],
+    ['Mis en cause',['civ','pNom','pNeLe','pNeA','pAdresse','pIdentite','declaration']],
+    ['Gérant et préjudice',['gNom','gNeLe','gNeA','gAdresse','consommations','montant','temoins']],
+    ['Arme',['armeLieu','armeDesc']],
+    ['Interpellation et garde à vue',['heureAvis','heureInterp','menottage','alcoolDecl','heureParquet','tribunal','heureUnite','ethylometre','ethyloRes','heureCS','heurePres']]],
+  body:x=>{ const {f,q,d,h,g,de,a}=x; return [
+    ['SAISINE',[
+      p(`Le ${d('dateFaits',true)} à ${h('heureSaisine')}, nous trouvant en service d’opération anti-délinquance en tenue civile, en compagnie ${x.eq()}, détachés pour emploi au profit de ${f('unite')}, nous sommes sollicités par ${reqText(x)} pour un individu qui n’aurait pas réglé ses consommations au restaurant ${f('restoNom')}, ${f('restoAdresse')}, ${f('commune')}.`),
+      p(`Il nous est précisé que l’individu est retenu, sans violence, par des clients témoins des faits. Nous nous transportons immédiatement sur les lieux à bord de notre véhicule banalisé, où nous arrivons à ${h('heureArrivee')}.`)]],
+    ['CONSTATATIONS',[
+      p('À notre arrivée, nous annonçons notre qualité de gendarmes en arborant le brassard « GENDARMERIE », numéro RIO apparent, et présentons nos cartes professionnelles.'),
+      p(`L’individu, désigné par les témoins, est contrôlé. Il est identifié comme étant ${g.civ} ${f('pNom')}, ${g.ne} le ${d('pNeLe')} à ${f('pNeA')}, demeurant ${f('pAdresse')} (${f('pIdentite')}).`),
+      p(`Nous prenons contact avec le gérant de l’établissement, ${f('gNom')}, né le ${d('gNeLe')} à ${f('gNeA')}, demeurant ${f('gAdresse')}. Celui-ci déclare que l’individu a consommé ${f('consommations')}, pour un montant de ${f('montant')} euros, sans régler l’addition. Témoins présents : ${f('temoins')}.`),
+      p(`${g.Int} déclare spontanément : ${q('declaration')}. ${g.Il} n’est pas en possession de moyens de paiement et n’est pas en mesure de régler le préjudice.`),
+      p(`Une palpation de sécurité permet la découverte, ${f('armeLieu')}, d’un ${f('armeDesc')}. L’arme lui est retirée et mise en sécurité, aux fins de saisie par l’Officier de police judiciaire.`)]],
+    ['MESURES PRISES',[
+      b(`À ${h('heureAvis')}, nous rendons compte ${a('opjGrade')} ${f('opjNom')}, Officier de police judiciaire en résidence à ${f('opjResidence')}, qui nous ordonne de procéder à l’interpellation de ${g.int} et décide de son placement en garde à vue.`),
+      b(`À ${h('heureInterp')}, vu l’article 73 du Code de procédure pénale, nous procédons à l’interpellation de ${g.civ} ${f('pNom')} pour filouterie d’aliments et port d’arme de catégorie D sans motif légitime. ${g.Il} est ${f('menottage')}.`),
+      b(`${g.Int} déclare avoir consommé ${f('alcoolDecl')}. La notification de ses droits est différée jusqu’à vérification de son état alcoolique et sera effectuée à l’unité par l’OPJ ou, sous son contrôle, par un APJ.`),
+      b(`À ${h('heureParquet')}, le magistrat de permanence du tribunal judiciaire de ${f('tribunal')} est avisé du placement en garde à vue.`),
+      b(`À ${h('heureUnite')}, arrivée à l’unité. La mesure au moyen de l’éthylomètre ${f('ethylometre')} donne un résultat de ${f('ethyloRes')} mg/l d’air expiré.`),
+      b(`Les mesures de sécurité sont appliquées (art. 63-6 CPP) et ${g.int} est placé${g.e} en chambre de sûreté à ${h('heureCS')}.`)]],
+    ['INFRACTION(S) CONSTATÉE(S)',[
+      sub('1. Filouterie d’aliments ou de boissons'),
+      ind(`NATINF 78 – le ${d('dateFaits')}, restaurant ${f('restoNom')}, ${f('commune')} (INSEE : ${f('insee')}). Prévue par l’art. 313-5 al. 1 1° et réprimée par l’art. 313-5 al. 6 et 7 du Code pénal. ${VER('à vérifier dans la base NATINF')}`),
+      sub('2. Port sans motif légitime d’arme blanche ou incapacitante de catégorie D'),
+      ind(`NATINF 90 – même date et lieu. Prévu par les art. L. 317-8 al. 1 3°, L. 315-1 al. 1, L. 311-2 al. 1 4°, R. 315-1 3°, R. 311-1 et R. 311-2 du Code de la sécurité intérieure ; réprimé par les art. L. 317-8 3° et L. 317-12 du même code. ${VER('à vérifier dans la base NATINF')}`)]],
+    ['CLÔTURE',[p(`${g.Int} est remis${g.e} ${a('opjGrade')} ${f('opjNom')}, Officier de police judiciaire, à ${h('heurePres')}, pour la suite de l’enquête. Le présent rapport lui est transmis.`)]],
+  ];},
+  vig:['Le placement en GAV est décidé par l’OPJ ; la notification des droits est faite par l’OPJ ou, sous son contrôle, par un APJ (art. 63-1 CPP).','L’arme est saisie et placée sous scellé par l’OPJ ou l’APJ ; l’APJA la met seulement en sécurité.','Montant du préjudice, détail des consommations et identité des témoins.','Résultat chiffré de l’éthylomètre ; menottage motivé (art. 803 CPP).','Penser à la plainte du restaurateur (pièce distincte).']
+},
+{ id:'vif', reqInline:true, cat:'pers', links: VIF_LINKS, deps:['modeNotif'], hide:(k, v) => k === 'notifiant' && !/APJ,/.test(v.modeNotif || ''), nom:'Violences intrafamiliales', sous:'Interpellation et mise à disposition de l\u2019OPJ', titre:'PROCÈS-VERBAL D’INTERPELLATION ET DE MISE À DISPOSITION', cpp73:true, clos:'procès-verbal',
+  groups:[REDAC,['Saisine',['dateFaits','equipage','requerant','requerantPrec','heureSaisine','commune','insee','heureArrivee','adresse']],
+    ['Victime',['vNom','vNeLe','vNeA','vTel','etatVictime','motif','contexte','faits','tiers','lesions']],
+    ['Mis en cause',['civ','pNom','pNeLe','pNeA','lienV','comportMec','declaration','heureDep','ethylotest','resEthylotest','armes','mineurs']],
+    ['Interpellation',['heureAvis','heureInterp','menottage','pSexe','pPere','pMere','pSituation','pAdresse','pTel','pProfession','pNationalite','pIdentite','portalis','portalisCoord']],
+    ['Garde à vue',['heureUnite','ethylometre','ethyloRes','modeNotif','heureNotif','notifiant','droits','mesuresVictime','heurePres']]],
+  body:x=>{ const {f,q,d,h,g,has,opt,de,a}=x; return [
+    ['SAISINE',[p(`Le ${d('dateFaits')}, nous trouvant en service, en compagnie ${x.eq()}, notre intervention est sollicitée à ${h('heureSaisine')} par ${reqText(x)} pour des violences intrafamiliales sur la commune de ${f('commune')}. Nous nous transportons immédiatement sur les lieux.`)]],
+    ['CONSTATATIONS',[
+      p(`À ${h('heureArrivee')}, nous arrivons au ${f('adresse')}, à ${f('commune')}.`),
+      p(`Nous sommes accueillis par la requérante, Mme ${f('vNom')}, née le ${d('vNeLe')} à ${f('vNeA')}, joignable au ${f('vTel')}. À notre arrivée, elle apparaît ${(x.v.etatVictime || []).length ? joinFr(x.v.etatVictime) : M('État de la victime à notre arrivée')}.`),
+      p(`Elle déclare s’être disputée avec son ${f('lienV')}, ${g.civ} ${f('pNom')}, ${g.ne} le ${d('pNeLe')} à ${f('pNeA')}, au sujet de ${f('motif')}. ${f('contexte')}`),
+      p(`Elle déclare : ${f('faits')}.`),
+      ...(has('tiers') ? [p(`Elle précise avoir contacté la gendarmerie sur le conseil de ${f('tiers')}.`)] : []),
+      p(`Constatations : ${f('lesions')}.`),
+      p(`Lors de notre intervention, le mis en cause est ${f('comportMec')}. Il déclare spontanément : ${q('declaration')}. À ${h('heureDep')}, il est soumis à un dépistage de l’imprégnation alcoolique au moyen d’un éthylotest ${f('ethylotest')}, qui indique ${f('resEthylotest')} mg/l d’air expiré.`),
+      p(`Armes au domicile : ${f('armes')}. Mineurs présents : ${f('mineurs')}.`)]],
+    ['INTERPELLATION',[
+      p(`À ${h('heureAvis')}, nous rendons compte par téléphone ${a('opjGrade')} ${f('opjNom')}, Officier de police judiciaire de permanence, des déclarations de la victime. Celui-ci décide du placement en garde à vue du mis en cause et nous demande de le conduire à l’unité.`),
+      p(`À ${h('heureInterp')}, vu l’article 73 du Code de procédure pénale, nous procédons à l’interpellation de :`),
+      { id:[['Nom, prénom',f('pNom')],['Sexe',f('pSexe')],['Né(e) le, à',d('pNeLe')+', '+f('pNeA')],['Filiation','de '+f('pPere')+' et de '+f('pMere')],['Situation de famille',f('pSituation')],['Adresse',f('pAdresse')],['Téléphone',f('pTel')],['Profession / nationalité',f('pProfession')+' / '+f('pNationalite')],['Validité état civil',f('pIdentite')]] },
+      p(`Il existe à son encontre une ou plusieurs raisons plausibles de soupçonner qu’il a commis ou tenté de commettre l’infraction de violences volontaires sur ${x.has('lienV') ? (FEM[x.f('lienV')] || 'son ' + x.f('lienV')) : M('Lien avec la victime')}. ${g.Il} est ${f('menottage')}.`),
+      p(`Communication électronique (Portalis) : ${g.int} ${f('portalis')} de recevoir les avis, convocations et documents de la procédure par voie électronique${x.f('portalis')==='accepte' ? ' ('+f('portalisCoord')+')' : ''}. ${g.Il} est informé${g.e} qu’${g.il} peut retirer ce consentement à tout moment.`)]],
+    ['MESURES PRISES',[
+      b(`À ${h('heureUnite')}, arrivée à l’unité. La mesure au moyen de l’éthylomètre ${f('ethylometre')} indique ${f('ethyloRes')} mg/l d’air expiré.`),
+      b(notifVif(x)),
+      b(droitsText(x)),
+      b(`Victime : ${(x.v.mesuresVictime || []).length ? joinFr(x.v.mesuresVictime) : M('Mesures prises pour la victime')}.`)]],
+    ['CONDUITE DEVANT L’O.P.J.',[p(`Le ${d('dateFaits')} à ${h('heurePres')}, ${g.int} est présenté${g.e} ${a('opjGrade')} ${f('opjNom')}, Officier de police judiciaire en résidence à ${f('opjResidence')}, territorialement compétent, pour la suite de l’enquête.`)]],
+  ];},
+  vig:['L’heure d’interpellation fait courir la garde à vue : elle doit figurer.','La notification des droits est faite par l’OPJ ou, sous son contrôle, par un APJ (art. 63-1). Un APJA ne notifie pas lui-même : il peut seulement servir d’intermédiaire à l’OPJ (par téléphone), ce que le rapport doit mentionner.','Avec un taux faible ou nul, la notification doit être immédiate.','Un seul OPJ cohérent (en-tête et texte).','Mentionner armes et mineurs au domicile, et les mesures pour la victime.','Ne garder une information médicale que si elle éclaire les faits.']
+},
+{ id:'stup', links: LIEU_LINKS, cat:'route', nom:'Stupéfiants', sous:'Dépistage salivaire positif', titre:'RAPPORT D’INFRACTION – APJA', cr235:true,
+  groups:[REDAC,['Service',['dateFaits','equipage','service','vehService','commune','insee','requerant','requerantPrec','heureSaisine']],
+    ['Motif du contrôle',['motifCtrl','heureMotif','lieuMotif','vehMarque','vehImmat','resFichiers','motifDetail','requisitions']],
+    ['Contrôle',['heureArret','lieuArret']],
+    ['Conducteur',['civ','pNom','pNeLe','pNeA','pAdresse','passagers','signesStup','declaration']],
+    ['Dépistages',['heureAlc','ethylotest','resAlc','heureStup','kitStup','heureLecture','produitsStup','remise']],
+    ['Suites',['heureAvis','sortVeh','numImmo','retention','numRetention','heurePres','natinfMotif']]],
+  body:x=>{ const {f,q,d,h,g,has,de,a}=x; const alc = x.f('resAlc') === 'positif'; return [
+    ['SAISINE',[p(`Le ${d('dateFaits',true)}, en uniforme, nous effectuons un service de ${f('service')} sur la commune de ${f('commune')}, en compagnie ${x.eq()}, à bord du véhicule de service ${f('vehService')}.`)]],
+    ['CONSTATATIONS',[
+      p(motifStup(x)),
+      p(`Nous actionnons nos avertisseurs lumineux et sonores. ${g.Cond} obtempère et s\u2019arrête ${f('lieuArret')}. Nous procédons au contrôle à ${h('heureArret')}.`),
+      p(`Sur présentation de son permis de conduire, ${g.cond} est identifié${g.e} comme étant ${g.civ} ${f('pNom')}, ${g.ne} le ${d('pNeLe')} à ${f('pNeA')}, demeurant ${f('pAdresse')}. ${occup(x)}`),
+      p(`Lors du contrôle, nous constatons : ${f('signesStup')}. Interrogé${g.e}, ${g.il} déclare spontanément : ${q('declaration')}.`),
+      p(`À ${h('heureAlc')}, ${g.il} est soumis${g.e} à une épreuve de dépistage de l’imprégnation alcoolique au moyen d’un éthylotest ${f('ethylotest')}. Le résultat est ${f('resAlc')}.`),
+      p(`À ${h('heureStup')}, sur l’ordre et sous la responsabilité ${de('opjGrade')} ${f('opjNom')}, Officier de police judiciaire, vu l’article L. 235-2 du Code de la route, nous ${g.le} soumettons à une épreuve de dépistage de l’usage de substances ou plantes classées comme stupéfiants, au moyen d’un test salivaire ${f('kitStup')}. Le test, lu à ${h('heureLecture')}, se révèle positif pour : ${f('produitsStup')}.`),
+      ...(has('remise') ? [p(`${g.Cond} nous remet volontairement : ${f('remise')}. Le produit est mis en sécurité à la disposition de l’OPJ.`)] : [])]],
+    ['MESURES PRISES',[
+      b(`À ${h('heureAvis')}, nous rendons compte ${a('opjGrade')} ${f('opjNom')}, Officier de police judiciaire, qui nous demande de conduire ${g.int} à l’unité de ${f('bureau')} afin qu’il soit procédé aux vérifications (prélèvement salivaire ou sanguin${alc ? ', et mesure au moyen d’un éthylomètre' : ''}).`),
+      b(`${g.Int} nous suit librement et sans difficulté.`),
+      b(vehSort(x)),
+      b(`Permis de conduire : ${f('retention')}${x.f('retention').startsWith('retenu') ? ', avis de rétention n° ' + f('numRetention') : ''}.`),
+      b(`À ${h('heurePres')}, nous présentons ${g.int} à l’OPJ, qui prend en charge la suite de la procédure.`)]],
+    ['INFRACTION(S) CONSTATÉE(S)',[
+      sub('1. Conduite après usage de stupéfiants'),
+      ind(`NATINF 22990 – Conduite d’un véhicule en ayant fait usage de substances ou plantes classées comme stupéfiants – le ${d('dateFaits')} à ${h('heureArret')}, ${f('lieuArret')}, ${f('commune')} (INSEE : ${f('insee')}). Prévue et réprimée par l’art. L. 235-1 du Code de la route. ${VER('à vérifier dans la base NATINF ; infraction établie après les vérifications')}`),
+      ...(has('natinfMotif') ? [sub('2. Infraction ayant motivé le contrôle'), ind(`NATINF ${f('natinfMotif')} – même date et lieu.`)] : []),
+      ...(alc ? [ind(`Dépistage d’alcool également positif : circonstance aggravante prévue à l’art. L. 235-1 II du Code de la route, à apprécier par l’OPJ.`)] : [])]],
+    ['CLÔTURE',[p('Nous avons rendu compte à l’Officier de police judiciaire, à la demande duquel le présent rapport est rédigé et lui est transmis.')]],
+  ];},
+  vig:['Écrire que le dépistage est fait sur l’ordre et sous la responsabilité de l’OPJ (art. L. 235-2).','Le contrôle d\u2019un conducteur en circulation doit reposer sur un motif : infraction au code de la route, consultation SIV / FVA, consultation SNPC ou réquisitions du procureur.','Kit salivaire : marque, n° de lot, péremption, heure de lecture.','Le test positif ne suffit pas : vérifications (analyse salivaire ou sanguine) par l’OPJ ou l’APJ.','Le refus des vérifications est un délit distinct (art. L. 235-3).','Pas de fouille du véhicule : seule une remise volontaire est consignée.','Rétention du permis et immobilisation : décisions OPJ / APJ, avec leurs numéros.']
+},
+];
+
+/* ====================== CONTRÔLE ROUTIER MODULABLE ====================== */
+// Catalogue d'infractions (modifiable par l'utilisateur, conservé sur l'appareil)
+const CATALOG_DEF = [
+  { id:'ct', lib:'Maintien en circulation d’un véhicule à moteur sans contrôle technique périodique', court:'défaut de contrôle technique', natinf:'12522', prevu:'art. R. 323-1 et R. 323-6 du Code de la route', reprime:'art. R. 323-1 al. 3 du Code de la route', nature:'contravention', alc:'à préciser', stup:'à préciser', verif:true },
+  { id:'assur', lib:'Conduite d’un véhicule terrestre à moteur sans assurance', court:'défaut d’assurance', natinf:'', prevu:'art. L. 324-2 du Code de la route', reprime:'art. L. 324-2 du Code de la route', nature:'délit', alc:'à préciser', stup:'à préciser', verif:true },
+  { id:'stop', lib:'Non-respect de l’arrêt imposé par un panneau « stop »', court:'non-respect d’un arrêt « stop »', natinf:'203', prevu:'art. R. 415-6 du Code de la route', reprime:'art. R. 415-6 du Code de la route', nature:'contravention', alc:'à préciser', stup:'à préciser', verif:true },
+  { id:'feu', lib:'Non-respect de l’arrêt imposé par un feu rouge', court:'non-respect d’un feu rouge', natinf:'', prevu:'art. R. 412-30 du Code de la route', reprime:'art. R. 412-30 du Code de la route', nature:'contravention', alc:'à préciser', stup:'à préciser', verif:true },
+  { id:'ligne', lib:'Franchissement d’une ligne continue', court:'franchissement d’une ligne continue', natinf:'', prevu:'art. R. 412-19 du Code de la route', reprime:'art. R. 412-19 du Code de la route', nature:'contravention', alc:'à préciser', stup:'à préciser', verif:true },
+  { id:'tel', lib:'Usage d’un téléphone tenu en main par le conducteur d’un véhicule en circulation', court:'usage d’un téléphone tenu en main', natinf:'', prevu:'art. R. 412-6-1 du Code de la route', reprime:'art. R. 412-6-1 du Code de la route', nature:'contravention', alc:'à préciser', stup:'à préciser', verif:true },
+  { id:'ceint', lib:'Défaut de port de la ceinture de sécurité par le conducteur', court:'défaut de port de la ceinture de sécurité', natinf:'', prevu:'art. R. 412-1 du Code de la route', reprime:'art. R. 412-1 du Code de la route', nature:'contravention', alc:'à préciser', stup:'à préciser', verif:true },
+  { id:'vit', lib:'Excès de vitesse', court:'excès de vitesse', natinf:'', prevu:'', reprime:'', nature:'contravention', alc:'à préciser', stup:'à préciser', verif:true },
+  { id:'susp', lib:'Conduite d’un véhicule à moteur malgré une suspension administrative ou judiciaire du permis de conduire', court:'conduite malgré suspension du permis', natinf:'5707', prevu:'art. L. 224-16 I et L. 232-4 al. 5 du Code de la route', reprime:'art. L. 224-16 du Code de la route', nature:'délit', alc:'à préciser', stup:'à préciser', verif:true },
+];
+const SIGNES_DEF = ['odeur d’alcool dans l’habitacle','haleine alcoolisée','yeux rougis','yeux brillants','pupilles dilatées','pupilles rétractées','élocution pâteuse','élocution hésitante','démarche titubante','gestes imprécis','comportement agité','comportement somnolent','forte odeur de cannabis dans l’habitacle','odeur de cannabis sur les vêtements','tremblements','mâchoires crispées','propos incohérents','aucun signe particulier'];
+function catalog(){ const P = state.profil; if (!Array.isArray(P.catalog)) P.catalog = CATALOG_DEF.map(c => Object.assign({}, c)); return P.catalog; }
+function signesList(){ const P = state.profil; P.lists = P.lists || {}; if (!Array.isArray(P.lists.signes)) P.lists.signes = SIGNES_DEF.slice(); return P.lists.signes; }
+function selInfr(v){ const C = catalog(); return (v.infr || []).map(s => Object.assign({ motive: !!s.motive }, C.find(c => c.id === s.id))).filter(c => c.lib); }
+const joinFr = L => L.length <= 1 ? (L[0] || '') : L.slice(0,-1).join(', ') + ' et ' + L[L.length-1];
+
+function routeBody(x, v){
+  const {f,q,d,h,g,has,de,a} = x;
+  const I = selInfr(v), mot = x.f('motifCtrl');
+  const alcDone = /négatif|positif/.test(v.alcRes || ''), stupDone = /négatif|positif/.test(v.stupRes || '');
+  const alcP = v.alcRes === 'positif', stupP = v.stupRes === 'positif';
+  const contr = I.filter(i => i.nature !== 'délit'), delits = I.filter(i => i.nature === 'délit');
+  const veh = `véhicule ${f('vehMarque')}, immatriculé ${f('vehImmat')}`;
+  const deb = `À ${h('heureMotif')}, ${f('lieuMotif')}, `;
+  // --- motif
+  let motif;
+  if (/SIV|FVA/.test(mot)) motif = deb + `nous interrogeons les fichiers SIV et FVA à partir de la plaque d’immatriculation du ${veh}, circulant devant nous. Il en ressort : ${(v.resFich || []).length ? joinFr(v.resFich) : M('Résultat de la consultation')}. Nous décidons de procéder au contrôle du véhicule.`;
+  else if (/SNPC/.test(mot)) motif = deb + `nous, agents expressément habilités, consultons le Système national des permis de conduire (SNPC) au sujet du titulaire du ${veh}, circulant devant nous. Il en ressort : ${(v.resFich || []).length ? joinFr(v.resFich) : M('Résultat de la consultation')}. Nous décidons de procéder au contrôle du véhicule.`;
+  else if (/réquisition/i.test(mot)) motif = deb + `en exécution des réquisitions du ${f('requisitions')}, nous procédons au contrôle du ${veh}.`;
+  else if (/infraction/i.test(mot)) { const mi = I.filter(i => i.motive).map(i => i.court || i.lib);
+    motif = deb + `nous constatons que le ${veh}, circulant devant nous, commet ${mi.length > 1 ? 'les infractions suivantes' : 'l’infraction suivante'} : ${mi.length ? joinFr(mi) : M('Infraction ayant motivé le contrôle (cocher « a motivé le contrôle »)')}. Nous décidons de procéder au contrôle du véhicule.`; }
+  else motif = deb + `nous procédons au contrôle du ${veh}. Motif du contrôle : ${f('motifCtrl')}.`;
+  // --- signes
+  const S = (v.signes || []).filter(Boolean); const lib = (v.signesLibre || '').trim();
+  let signes;
+  if (S.length === 1 && /aucun signe/.test(S[0]) && !lib) signes = 'Lors du contrôle, aucun signe particulier n’est constaté.';
+  else { const all = S.filter(s => !/aucun signe/.test(s)).concat(lib ? [lib] : []); signes = `Lors du contrôle, nous constatons : ${all.length ? joinFr(all) : M('Signes constatés')}.`; }
+  const baseDep = /réquisition/i.test(mot) ? 'en exécution des réquisitions précitées' : `${g.int} étant l’auteur présumé d’une infraction au code de la route`;
+  const C = [
+    p(motif),
+    p(`Nous actionnons nos avertisseurs lumineux et sonores. ${g.Cond} obtempère et s’arrête ${f('lieuArret')}. Nous procédons au contrôle à ${h('heureArret')}.`),
+    p(`Sur présentation de son permis de conduire, ${g.cond} est identifié${g.e} comme étant ${g.civ} ${f('pNom')}, ${g.ne} le ${d('pNeLe')} à ${f('pNeA')}, demeurant ${f('pAdresse')}. ${occup(x)}`),
+    p(signes + (has('declaration') ? ` Interrogé${g.e}, ${g.il} déclare spontanément : ${q('declaration')}.` : '')),
+  ];
+  if (alcDone) C.push(p(`À ${h('heureAlc')}, ${baseDep}, nous ${g.le} soumettons à une épreuve de dépistage de l’imprégnation alcoolique (art. L. 234-3 du Code de la route) au moyen d’un éthylotest ${f('ethylotest')}. Le résultat est ${v.alcRes}.`));
+  if (stupDone) C.push(p(`À ${h('heureStup')}, sur l’ordre et sous la responsabilité ${de('opjGrade')} ${f('opjNom')}, Officier de police judiciaire, ${baseDep}, nous ${g.le} soumettons à une épreuve de dépistage de l’usage de substances ou plantes classées comme stupéfiants (art. L. 235-2 du Code de la route), au moyen d’un test salivaire ${f('kitStup')}. Le test, lu à ${h('heureLecture')}, se révèle ${stupP ? 'positif pour : ' + f('produitsStup') : 'négatif'}.`));
+  if (has('remise')) C.push(p(`${g.Cond} nous remet volontairement : ${f('remise')}. Le produit est mis en sécurité à la disposition de l’OPJ.`));
+  // --- mesures
+  const Mx = [];
+  if (alcP || stupP || delits.length) {
+    const verifs = [alcP ? 'la mesure au moyen d’un éthylomètre' : '', stupP ? 'le prélèvement salivaire ou sanguin' : ''].filter(Boolean);
+    Mx.push(b(`À ${h('heureAvis')}, nous rendons compte ${a('opjGrade')} ${f('opjNom')}, Officier de police judiciaire, qui nous demande de conduire ${g.int} à l’unité de ${f('bureau')}` + (verifs.length ? ` afin qu’il soit procédé aux vérifications (${joinFr(verifs)}).` : ' pour la suite de la procédure.')));
+    Mx.push(b(`${g.Int} nous suit librement et sans difficulté.`));
+  }
+  Mx.push(b(vehSort(x)));
+  if (alcP || stupP) Mx.push(b(`Permis de conduire : ${f('retention')}${x.f('retention').startsWith('retenu') ? ', avis de rétention n° ' + f('numRetention') : ''}.`));
+  if (contr.length) Mx.push(b(`${contr.length > 1 ? 'Les contraventions sont relevées' : 'La contravention est relevée'} par ${pvRef(x)}.`));
+  if (alcP || stupP || delits.length) Mx.push(b(`À ${h('heurePres')}, nous présentons ${g.int} à l’OPJ, qui prend en charge la suite de la procédure.`));
+  if (!(alcP || stupP || delits.length) && !/fourrière|immobilis/.test(v.sortVeh || '')) Mx.push(b(`À l’issue du contrôle, ${g.int} est autorisé${g.e} à poursuivre sa route.`));
+  // --- infractions
+  const lieu = `le ${d('dateFaits')} à ${h('heureArret')}, ${f('lieuArret')}, ${f('commune')} (INSEE : ${f('insee')})`;
+  const In = []; let n = 0;
+  I.forEach(i => { n++; In.push(sub(`${n}. ${i.lib}`));
+    In.push(ind(`NATINF ${i.natinf ? i.natinf : M('NATINF')} – ${lieu}. ${i.prevu ? 'Prévue par l’' + i.prevu.replace(/^art\./,'art.') : M('Texte prévoyant l’infraction')}${i.reprime ? ', réprimée par l’' + i.reprime : ''}. ` + (i.nature === 'délit' ? 'Délit, suites données par l’OPJ. ' : '') + (i.verif ? VER('à vérifier dans la base NATINF') : ''))); });
+  if (alcP) { n++; In.push(sub(`${n}. Conduite sous l’empire d’un état alcoolique`)); In.push(ind('Dépistage positif. Qualification (contravention ou délit) et NATINF à déterminer par l’OPJ selon le résultat de l’éthylomètre.')); }
+  if (stupP) { n++; In.push(sub(`${n}. Conduite après usage de stupéfiants`)); In.push(ind(`NATINF 22990 – Conduite d’un véhicule en ayant fait usage de substances ou plantes classées comme stupéfiants – ${lieu}. Prévue et réprimée par l’art. L. 235-1 du Code de la route. ${VER('à vérifier ; infraction établie après les vérifications')}`)); }
+  if (alcP && stupP) In.push(ind('Alcool et stupéfiants : circonstance aggravante prévue à l’art. L. 235-1 II du Code de la route, à apprécier par l’OPJ.'));
+  if (!n) In.push(p(M('Infraction(s) constatée(s) : ajoutez-les dans la rubrique « Infractions »')));
+  return [
+    ['SAISINE',[p(`Le ${d('dateFaits',true)}, en uniforme, nous effectuons un service de ${f('service')} sur la commune de ${f('commune')}, en compagnie ${x.eq()}, à bord du véhicule de service ${f('vehService')}.`)]],
+    ['CONSTATATIONS', C],
+    ['MESURES PRISES', Mx],
+    ['INFRACTION(S) CONSTATÉE(S)', In],
+    ['CLÔTURE',[p(alcP || stupP || delits.length ? 'Nous avons rendu compte à l’Officier de police judiciaire, à la demande duquel le présent rapport est rédigé et lui est transmis.' : 'Le présent rapport est transmis à l’Officier de police judiciaire.')]],
+  ];
+}
+function routeVig(v){
+  const I = selInfr(v); const L = [];
+  I.forEach(i => {
+    if (i.alc === 'obligatoire' && !/négatif|positif/.test(v.alcRes || '')) L.push(`⚠ ${i.court || i.lib} : dépistage d’alcool OBLIGATOIRE, non renseigné.`);
+    if (i.stup === 'obligatoire' && !/négatif|positif/.test(v.stupRes || '')) L.push(`⚠ ${i.court || i.lib} : dépistage de stupéfiants OBLIGATOIRE, non renseigné.`);
+  });
+  return L.concat([
+    'Le contrôle d’un conducteur en circulation repose sur un motif : infraction, consultation SIV / FVA, consultation SNPC ou réquisitions du procureur.',
+    'Dépistage de stupéfiants par un APJA : sur l’ordre et sous la responsabilité de l’OPJ (art. L. 235-2).',
+    'Ne mentionner que les signes réellement constatés ; citer mot pour mot les déclarations spontanées.',
+    'Éthylotest et kit salivaire : type, n° de série ou de lot, heure ; heure de lecture du test salivaire.',
+    'Sort du véhicule et, en cas de dépistage positif, rétention du permis : décisions OPJ / APJ avec leurs numéros.',
+    'Vérifier NATINF et textes de chaque infraction (catalogue modifiable dans la rubrique « Infractions »).',
+  ]);
+}
+const ROUTE_HIDE = (k, v) => {
+  const mot = v.motifCtrl || '', alc = /négatif|positif/.test(v.alcRes || ''), st = /négatif|positif/.test(v.stupRes || '');
+  const pos = v.alcRes === 'positif' || v.stupRes === 'positif'; const I = selInfr(v);
+  const delit = I.some(i => i.nature === 'délit'), contr = I.some(i => i.nature !== 'délit');
+  switch (k) {
+    case 'resFichiers': case 'resFich': return !/SIV|FVA|SNPC/.test(mot);
+    case 'requisitions': return !/réquisition/i.test(mot);
+    case 'heureAlc': case 'ethylotest': return !alc;
+    case 'heureStup': case 'kitStup': case 'heureLecture': return !st;
+    case 'produitsStup': return v.stupRes !== 'positif';
+    case 'retention': case 'numRetention': return !pos;
+    case 'heureAvis': case 'heurePres': return !(pos || delit);
+    case 'numAvis': case 'typePV': return !contr;
+    case 'numImmo': return !/^immobilisé|provisoire/.test(v.sortVeh || '');
+  }
+  return false;
+};
+
+/* ---- Éditeurs : infractions et signes ---- */
+function infrEditor(dv, onchange){
+  const box = document.createElement('div'); box.className = 'eqbox';
+  dv.infr = dv.infr || [];
+  const draw = () => {
+    const C = catalog(); box.innerHTML = '';
+    if (!dv.infr.length) { const h = document.createElement('div'); h.className = 'hint'; h.textContent = 'Ajoutez la ou les infractions au code de la route constatées (motif du contrôle ou résultat des fichiers).'; box.appendChild(h); }
+    dv.infr.forEach((s, i) => {
+      const c = C.find(x => x.id === s.id); if (!c) return;
+      const card = document.createElement('div'); card.className = 'eqcard';
+      const badge = (t, val) => `<span class="dep ${val === 'obligatoire' ? 'ob' : val === 'facultatif' ? 'fa' : ''}">${t} : ${esc(val || 'à préciser')}</span>`;
+      card.innerHTML = `<div class="eqtop"><b>${esc(c.lib)}</b><button type="button" class="lnk red">Retirer</button></div>
+        <div class="hint">NATINF ${esc(c.natinf || '…')} · ${esc(c.nature)}</div>
+        <div style="margin:6px 0">${badge('Dépistage alcool', c.alc)} ${badge('Dépistage stupéfiants', c.stup)}</div>
+        <label class="row" style="margin:4px 0 0;font-size:13px"><input type="checkbox" ${s.motive ? 'checked' : ''}> A motivé le contrôle</label>`;
+      card.querySelector('button').onclick = () => { dv.infr.splice(i, 1); onchange(true); draw(); };
+      card.querySelector('input').onchange = e => { s.motive = e.target.checked; onchange(); };
+      box.appendChild(card);
+    });
+    const bar = document.createElement('div'); bar.className = 'eqbar';
+    bar.innerHTML = `<select class="sm" style="flex:1"><option value="">+ Ajouter une infraction…</option>${C.map(c => `<option value="${c.id}">${esc(c.court || c.lib)}${c.natinf ? ' (' + esc(c.natinf) + ')' : ''}</option>`).join('')}</select><button type="button" class="btn alt sm">Catalogue</button>`;
+    bar.querySelector('select').onchange = e => { const id = e.target.value; if (!id) return; if (!dv.infr.some(s => s.id === id)) dv.infr.push({ id, motive: false }); onchange(true); draw(); };
+    bar.querySelector('button').onclick = () => openCatalog(() => { onchange(true); draw(); });
+    box.appendChild(bar);
+  };
+  draw(); return box;
+}
+function tagsEditor(dv, onchange, key, getList, head, ph, noneRe){
+  const box = document.createElement('div'); box.className = 'eqbox';
+  if (typeof dv[key] === 'string') dv[key] = dv[key].trim() ? [dv[key].trim()] : [];
+  dv[key] = dv[key] || []; let edit = false;
+  const draw = () => {
+    const L = getList(), S = dv[key];
+    box.innerHTML = `<div class="eqhead">${esc(head)} <button type="button" class="lnk" data-a="ed">${edit ? 'Terminer' : 'Modifier la liste'}</button></div>`;
+    box.querySelector('[data-a=ed]').onclick = () => { edit = !edit; draw(); };
+    const wrap = document.createElement('div'); wrap.className = 'tags';
+    L.concat(S.filter(t => !L.includes(t))).forEach(t => { const b = document.createElement('button'); b.type = 'button'; b.className = 'tag' + (S.includes(t) ? ' on' : '') + (edit ? ' del' : ''); b.textContent = (edit ? '× ' : '') + t;
+      b.onclick = async () => {
+        if (edit) { if (!await ask('Retirer « ' + t + ' » de la liste ?')) return; if (L.includes(t)) L.splice(L.indexOf(t), 1); const k = S.indexOf(t); if (k >= 0) S.splice(k, 1); persist(); onchange(); draw(); return; }
+        const i = S.indexOf(t); if (i >= 0) S.splice(i, 1);
+        else { if (noneRe && noneRe.test(t)) S.length = 0; else if (noneRe) { const j = S.findIndex(s => noneRe.test(s)); if (j >= 0) S.splice(j, 1); } S.push(t); }
+        onchange(); draw(); };
+      wrap.appendChild(b); });
+    box.appendChild(wrap);
+    const add = document.createElement('div'); add.className = 'lrow';
+    add.innerHTML = `<input type="text" placeholder="${esc(ph)}"><button type="button" class="btn alt sm">Ajouter</button>`;
+    const inp = add.querySelector('input');
+    const go = () => { const t = inp.value.trim(); if (!t) return; if (!L.includes(t)) L.push(t); if (!S.includes(t)) S.push(t); persist(); onchange(); draw(); };
+    add.querySelector('button').onclick = go; inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
+    box.appendChild(add);
+    if (S.length) { const sel = document.createElement('div'); sel.className = 'hint'; sel.textContent = 'Sélection : ' + S.join(', '); box.appendChild(sel); }
+  };
+  draw(); return box;
+}
+const signesEditor = (dv, onchange) => tagsEditor(dv, onchange, 'signes', signesList, 'Signes constatés (touchez pour sélectionner)', 'Autre signe à ajouter à la liste', /aucun signe/);
+const ETAT_DEF = ['tremblante','en pleurs','choquée','apeurée','agitée','prostrée','confuse','essoufflée','calme','coopérante'];
+function etatList(){ const P = state.profil; P.lists = P.lists || {}; if (!Array.isArray(P.lists.etatVictime)) P.lists.etatVictime = ETAT_DEF.slice(); return P.lists.etatVictime; }
+const MESV_DEF = ['mise en sécurité','invitée à déposer plainte','informée de ses droits (art. 10-2 du Code de procédure pénale)','orientée vers l\u2019association d\u2019aide aux victimes','orientée vers l\u2019unité médico-judiciaire (UMJ)','informée de la possibilité de demander une ordonnance de protection','grille d\u2019évaluation du danger renseignée','hébergée chez un proche'];
+function mesvList(){ const P = state.profil; P.lists = P.lists || {}; if (!Array.isArray(P.lists.mesuresVictime)) P.lists.mesuresVictime = MESV_DEF.slice(); return P.lists.mesuresVictime; }
+const mesvEditor = (dv, onchange) => tagsEditor(dv, onchange, 'mesuresVictime', mesvList, 'Mesures prises pour la victime (touchez pour sélectionner)', 'Autre mesure à ajouter à la liste', null);
+const DROITS_DEF = ['assistance d\u2019un avocat commis d\u2019office','assistance d\u2019un avocat choisi','examen médical','avis à un proche','avis à l\u2019employeur','assistance d\u2019un interprète','aucun droit'];
+function droitsList(){ const P = state.profil; P.lists = P.lists || {}; if (!Array.isArray(P.lists.droits)) P.lists.droits = DROITS_DEF.slice(); return P.lists.droits; }
+const droitsEditor = (dv, onchange) => tagsEditor(dv, onchange, 'droits', droitsList, 'Droits demandés (touchez pour sélectionner)', 'Autre droit à ajouter', /aucun droit/);
+// Résultat de la consultation : choix multiple, avec ajout automatique des infractions correspondantes
+const RES_INFR = [[/assurance/i,'assur'],[/contrôle technique/i,'ct'],[/suspendu/i,'susp']];
+function resfList(){ const P = state.profil; P.lists = P.lists || {}; if (!Array.isArray(P.lists.resFich)) P.lists.resFich = F.resFichiers[2].slice(); return P.lists.resFich; }
+const resfEditor = (dv, onchange) => tagsEditor(dv, () => {
+  dv.infr = dv.infr || []; let added = false;
+  (dv.resFich || []).forEach(r => RES_INFR.forEach(([re, id]) => { if (re.test(r) && catalog().some(c => c.id === id) && !dv.infr.some(x => x.id === id)) { dv.infr.push({ id, motive: false }); added = true; } }));
+  if (added) toast('Infraction ajoutée dans la rubrique « Infractions »');
+  onchange(added);
+}, 'resFich', resfList, 'Résultat de la consultation (touchez pour sélectionner, plusieurs choix possibles)', 'Autre résultat à ajouter', null);
+const etatEditor = (dv, onchange) => tagsEditor(dv, onchange, 'etatVictime', etatList, 'État de la victime à notre arrivée (touchez pour sélectionner)', 'Autre état, ex. « en état de sidération »', null);
+function openCatalog(after){
+  const dlg = $('#dlgCat'), body = $('#catBody');
+  const list = () => {
+    const C = catalog();
+    body.innerHTML = `<p class="hint">Libellés, NATINF, textes et règles de dépistage de chaque infraction. Vérifiez-les dans la base NATINF : ils sont repris tels quels dans le rapport.</p>` +
+      C.map((c, i) => `<div class="mitem" data-i="${i}" style="cursor:pointer"><span><div class="n">${esc(c.court || c.lib)}</div><div class="s">NATINF ${esc(c.natinf || '…')} · ${esc(c.nature)} · alcool : ${esc(c.alc)} · stupéfiants : ${esc(c.stup)}</div></span></div>`).join('') +
+      `<div class="row" style="margin-top:12px"><button class="btn alt sm" id="catNew">+ Nouvelle infraction</button></div>`;
+    body.querySelectorAll('.mitem').forEach(el => el.onclick = () => edit(+el.dataset.i));
+    $('#catNew').onclick = () => { C.push({ id: 'u' + Date.now().toString(36), lib: '', court: '', natinf: '', prevu: '', reprime: '', nature: 'contravention', alc: 'à préciser', stup: 'à préciser', verif: true }); edit(C.length - 1); };
+  };
+  const edit = i => {
+    const C = catalog(), c = C[i];
+    const fld = (k, lab, ph) => `<label class="f"><span>${lab}</span><input data-k="${k}" value="${esc(c[k] || '')}" placeholder="${ph || ''}"></label>`;
+    const sel = (k, lab, opts) => `<label class="f"><span>${lab}</span><select data-k="${k}">${opts.map(o => `<option${c[k] === o ? ' selected' : ''}>${o}</option>`).join('')}</select></label>`;
+    body.innerHTML = `<div class="fields" style="padding:0">${fld('lib','Libellé complet (repris dans « Infractions constatées »)')}${fld('court','Libellé court (repris dans les phrases)','ex. défaut de contrôle technique')}${fld('natinf','NATINF')}${fld('prevu','Prévue par','ex. art. R. 415-6 du Code de la route')}${fld('reprime','Réprimée par')}
+      ${sel('nature','Nature',['contravention','délit'])}${sel('alc','Dépistage d’alcool',['à préciser','obligatoire','facultatif'])}${sel('stup','Dépistage de stupéfiants',['à préciser','obligatoire','facultatif'])}
+      <label class="row" style="font-size:13px"><input type="checkbox" data-k="verif" ${c.verif ? 'checked' : ''}> Afficher « à vérifier » dans le rapport</label></div>
+      <div class="row" style="justify-content:space-between;margin-top:12px"><button class="btn danger sm" id="catDel">Supprimer</button><button class="btn sm" id="catOk">Enregistrer</button></div>`;
+    $('#catOk').onclick = () => { body.querySelectorAll('[data-k]').forEach(el => { c[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value.trim(); });
+      if (!c.lib) { toast('Indiquez au moins le libellé'); return; } persist(); list(); toast('Infraction enregistrée'); };
+    $('#catDel').onclick = async () => { if (!await ask('Supprimer cette infraction du catalogue ?')) return; C.splice(i, 1); persist(); list(); };
+  };
+  list(); dlg.showModal();
+  $('#closeCat').onclick = () => { const C = catalog(); for (let j = C.length - 1; j >= 0; j--) if (!C[j].lib) C.splice(j, 1); persist(); dlg.close(); after && after(); };
+}
+
+MODELS.unshift({ id:'route', links: LIEU_LINKS, cat:'route', nom:'Contrôle routier', sous:'Rapport modulable : infractions cumulées, dépistages alcool et stupéfiants', titre:'RAPPORT D’INFRACTION – APJA',
+  visa: v => (/négatif|positif/.test(v.alcRes || '') ? ', L. 234-3' : '') + (/négatif|positif/.test(v.stupRes || '') ? ', L. 235-2' : ''),
+  deps: ['motifCtrl','alcRes','stupRes','sortVeh'], hide: ROUTE_HIDE,
+  groups:[REDAC,['Service',['dateFaits','equipage','service','vehService','commune','insee','requerant','requerantPrec','heureSaisine']],
+    ['Motif du contrôle',['motifCtrl','heureMotif','lieuMotif','vehMarque','vehImmat','resFich','requisitions']],
+    ['Infractions',['infr']],
+    ['Contrôle du conducteur',['heureArret','lieuArret','civ','pNom','pNeLe','pNeA','pAdresse','passagers','signes','signesLibre','declaration']],
+    ['Dépistages',['alcRes','heureAlc','ethylotest','stupRes','heureStup','kitStup','heureLecture','produitsStup','remise']],
+    ['Suites',['heureAvis','sortVeh','numImmo','retention','numRetention','typePV','numAvis','heurePres']]],
+  body: x => routeBody(x, x.v), vig: routeVig,
+});
+
+for (const id of ['alc']) { const i = MODELS.findIndex(m => m.id === id); if (i >= 0) MODELS.splice(i, 1); }
+
+/* ====================== ÉTAT ====================== */
+const LS = { get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }, del(k){ try{ localStorage.removeItem(k); }catch(e){} } };
+const state = { profil: LS.get('apja.profil') || {}, save: !!LS.get('apja.save'), cur: LS.get('apja.cur') || 'route', data: {}, checks: {} };
+if (state.save) state.data = LS.get('apja.data') || {};
+const cur = () => MODELS.find(m => m.id === state.cur) || MODELS[0];
+const vals = () => Object.assign({}, state.profil, state.data[state.cur] || {});
+function persist(){ LS.set('apja.profil', state.profil); LS.set('apja.cur', state.cur); LS.set('apja.save', state.save); if (state.save) LS.set('apja.data', state.data); else LS.del('apja.data'); }
+
+/* ====================== RENDU DU DOCUMENT ====================== */
+function build(){
+  const m = cur(), v = vals(), x = H(v);
+  const {f,d,hl,de} = x;
+  const head = {
+    lines:['GENDARMERIE NATIONALE','Compagnie de gendarmerie départementale de ' + f('compagnie'), f('unite')],
+    ref:[['Code unité',f('codeUnite')],['N° P.V.',f('numPV')],['Année', v.dateRed ? v.dateRed.slice(0,4) : M('Année')],['Dossier justice',f('dossier')],['N° pièce',''],['N° feuillet','']],
+    titre:m.titre,
+  };
+  const pre = [
+    p(`Le ${d('dateRed',true)} à ${hl('heureRed')}.`),
+    p(`Nous soussigné ${f('redGrade')}${v.redReserve === 'oui' ? ' de réserve' : ''} ${f('redNom')}, ${f('redQualite')}, détaché pour emploi à ${f('redLieu')},`),
+    p(`Sous le contrôle ${de('opjGrade')} ${f('opjNom')}, Officier de police judiciaire en résidence à ${f('opjResidence')},`),
+    p(`Vu les articles 21 1° bis${m.cpp73 ? ', 21-1 et 73' : ' et 21-1'} du Code de procédure pénale${m.cr ? ', L. 234-3 du Code de la route' : ''}${m.cr235 ? ', L. 235-2 du Code de la route' : ''}${m.visa && m.visa(v) ? m.visa(v) + ' du Code de la route' : ''},`),
+    p(`Nous trouvant au bureau de notre unité à ${f('bureau')}, rapportons les opérations suivantes :`),
+  ];
+  const close = p(`Dont ${m.clos || 'rapport'}, fait et clos à ${f('bureau')}, le ${d('dateClos')} à ${hl('heureClos')}.`);
+  const sig = [ (v.redQualite || 'Agent de police judiciaire adjoint').replace(/^A/,'L’A'), f('redGrade') + (v.redReserve === 'oui' ? ' de réserve' : '') + ' ' + f('redNom') ];
+  const sections = m.body(x);
+  if (!m.reqInline && x.has('requerant') && sections.length && sections[0][0] === 'SAISINE')
+    sections[0][1].push(p(`Notre intervention est sollicitée à ${x.h('heureSaisine')} par ${reqText(x)}.`));
+  return { head, pre, sections, close, sig };
+}
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const html = s => esc(s).replace(/\u0001([^\u0002]*)\u0002/g,'<mark class="m">« $1 »</mark>').replace(/\u0003([^\u0004]*)\u0004/g,'<span class="v">[$1]</span>');
+const txt = s => String(s).replace(/\u0001([^\u0002]*)\u0002/g,'« $1 »').replace(/\u0003([^\u0004]*)\u0004/g,'[$1]');
+function toHTML(r){
+  let o = r.head.lines.map((l,i) => `<div class="${i===0?'g':''}">${html(l)}</div>`).join('');
+  o += '<table class="ref"><tr>' + r.head.ref.map(c=>`<th>${c[0]}</th>`).join('') + '</tr><tr>' + r.head.ref.map(c=>`<td>${html(c[1])}</td>`).join('') + '</tr></table>';
+  o += `<h1>${esc(r.head.titre)}</h1>`;
+  o += r.pre.map(x=>`<p>${html(x.p)}</p>`).join('');
+  for (const [t, items] of r.sections){
+    o += `<h2>${esc(t)}</h2>`; let ul = false;
+    for (const it of items){
+      if (it.b != null){ if(!ul){ o += '<ul>'; ul = true; } o += `<li>${html(it.b)}</li>`; continue; }
+      if (ul){ o += '</ul>'; ul = false; }
+      if (it.p != null) o += `<p>${html(it.p)}</p>`;
+      else if (it.ind != null) o += `<p class="ind">${html(it.ind)}</p>`;
+      else if (it.sub != null) o += `<h3>${esc(it.sub)}</h3>`;
+      else if (it.id) o += '<table class="id">' + it.id.map(r=>`<tr><td>${esc(r[0])}</td><td>${html(r[1])}</td></tr>`).join('') + '</table>';
+    }
+    if (ul) o += '</ul>';
+  }
+  o += `<p style="margin-top:14px">${html(r.close.p)}</p>`;
+  o += `<div class="sig"><div>${html(r.sig[0])}<br>${html(r.sig[1])}<em>Signature</em></div></div>`;
+  return o;
+}
+function toText(r){
+  const L = [...r.head.lines.map(txt), '', r.head.ref.filter(c=>c[1]).map(c=>c[0]+' : '+txt(c[1])).join(' | '), '', r.head.titre, ''];
+  r.pre.forEach(x => L.push(txt(x.p)));
+  for (const [t, items] of r.sections){
+    L.push('', t, '');
+    for (const it of items){
+      if (it.b != null) L.push('- ' + txt(it.b));
+      else if (it.p != null) L.push(txt(it.p));
+      else if (it.ind != null) L.push('    ' + txt(it.ind));
+      else if (it.sub != null) L.push(it.sub);
+      else if (it.id) it.id.forEach(r => L.push('    ' + r[0] + ' : ' + txt(r[1])));
+    }
+  }
+  L.push('', txt(r.close.p), '', txt(r.sig[0]), txt(r.sig[1]));
+  return L.join('\n');
+}
+
+/* ====================== CONTRÔLE DES DATES ET HEURES ====================== */
+const CHRONO = {
+  route: [['heureSaisine','Sollicitation'],['heureMotif','Constatations (motif du contrôle)'],['heureArret','Contrôle du conducteur'],['heureAlc','Dépistage d’alcool'],['heureStup','Dépistage de stupéfiants'],['heureLecture','Lecture du test salivaire'],['heureAvis','Compte rendu à l’OPJ'],['heurePres','Présentation à l’OPJ']],
+  ct:    [['heureSaisine','Sollicitation'],['heureSIV','Consultation SIV / FVA'],['heureArret','Contrôle du conducteur'],['heureDep','Dépistage d’alcool'],['heureAvis','Compte rendu à l’OPJ'],['heurePres','Présentation à l’OPJ']],
+  stup:  [['heureSaisine','Sollicitation'],['heureMotif','Constatations (motif du contrôle)'],['heureArret','Contrôle du conducteur'],['heureAlc','Dépistage d’alcool'],['heureStup','Dépistage de stupéfiants'],['heureLecture','Lecture du test salivaire'],['heureAvis','Compte rendu à l’OPJ'],['heurePres','Présentation à l’OPJ']],
+  pc:    [['heureSaisine','Sollicitation'],['heureConst','Constatations'],['heureArret','Contrôle du conducteur'],['heureDep','Dépistage d’alcool'],['heureAvis','Compte rendu à l’OPJ'],['heurePres','Présentation à l’OPJ']],
+  filou: [['heureSaisine','Sollicitation'],['heureArrivee','Arrivée sur les lieux'],['heureAvis','Compte rendu à l’OPJ'],['heureInterp','Interpellation (début de GAV)'],['heureParquet','Avis au parquet'],['heureUnite','Arrivée à l’unité'],['heureCS','Chambre de sûreté'],['heurePres','Remise à l’OPJ']],
+  vif:   [['heureSaisine','Sollicitation'],['heureArrivee','Arrivée sur les lieux'],['heureDep','Dépistage d’alcool du mis en cause'],['heureAvis','Compte rendu à l’OPJ'],['heureInterp','Interpellation (début de GAV)'],['heureUnite','Arrivée à l’unité'],['heureNotif','Notification des droits'],['heurePres','Présentation à l’OPJ']],
+};
+const hm = t => { const [a,b] = t.split(':').map(Number); return a * 60 + b; };
+const fmtH = m => { const d = Math.floor(m / 1440), r = ((m % 1440) + 1440) % 1440; return String(Math.floor(r/60)).padStart(2,'0') + ':' + String(r%60).padStart(2,'0') + (d > 0 ? ' (J+' + d + ')' : ''); };
+const dayDiff = (a, b) => Math.round((new Date(b) - new Date(a)) / 86400000);
+function checkChrono(m, v){
+  const E = [], W = [], OK = [], T = [];   // erreurs, avertissements, contrôles réussis, chronologie
+  const td = today();
+  // --- dates
+  if (v.dateFaits && v.dateFaits > td) E.push('La date des faits est dans le futur.');
+  if (v.dateRed && v.dateFaits && v.dateRed < v.dateFaits) E.push('La date de rédaction est antérieure à la date des faits.');
+  if (v.dateClos && v.dateRed && v.dateClos < v.dateRed) E.push('La date de clôture est antérieure à la date de rédaction.');
+  if (v.dateRed && v.dateRed > td) W.push('La date de rédaction est dans le futur.');
+  if (v.dateFaits && v.dateRed && dayDiff(v.dateFaits, v.dateRed) > 2) W.push(`Rédaction ${dayDiff(v.dateFaits, v.dateRed)} jours après les faits : vérifier la date.`);
+  // --- chronologie des actes
+  const list = (CHRONO[m.id] || []).filter(([k]) => v[k] && !(m.hide && m.hide(k, v)));
+  let day = 0, prev = null, prevLab = '';
+  list.forEach(([k, lab]) => {
+    let t = hm(v[k]) + day * 1440;
+    if (prev !== null && t < prev) {
+      if (prev - t > 12 * 60) { day++; t += 1440; W.push(`« ${lab} » (${v[k]}) est plus tôt que « ${prevLab} » : passage de minuit retenu. Vérifier les dates.`); }
+      else E.push(`Ordre incohérent : « ${lab} » (${v[k]}) est avant « ${prevLab} » (${fmtH(prev)}).`);
+    }
+    T.push([lab, t]); if (t >= (prev ?? -1)) { prev = t; prevLab = lab; }
+  });
+  const first = T.length ? T[0][1] : null, last = T.length ? Math.max(...T.map(x => x[1])) : null;
+  if (day > 0 && v.dateClos && v.dateFaits && v.dateClos === v.dateFaits) E.push('Les actes passent minuit mais la clôture est datée du jour des faits.');
+  // --- rédaction et clôture
+  const base = v.dateFaits || v.dateRed;
+  const abs = (dk, hk) => (v[dk] && v[hk] && base) ? dayDiff(base, v[dk]) * 1440 + hm(v[hk]) : null;
+  const red = abs('dateRed','heureRed'), clo = abs('dateClos','heureClos');
+  if (red !== null && first !== null && red < first) E.push(`La rédaction (${fmtH(red)}) commence avant le premier acte (${fmtH(first)}).`);
+  if (red !== null && last !== null && red < last && !(first !== null && red < first)) W.push(`La rédaction (${fmtH(red)}) commence avant le dernier acte (${fmtH(last)}) : l\u2019heure en tête du rapport est normalement postérieure aux actes relatés.`);
+  if (clo !== null && last !== null && clo < last) E.push(`La clôture (${fmtH(clo)}) est antérieure au dernier acte (${fmtH(last)}).`);
+  if (clo !== null && red !== null && clo < red) E.push('L’heure de clôture est antérieure à l’heure de rédaction.');
+  if (red !== null) T.push(['Début de rédaction', red]); if (clo !== null) T.push(['Clôture', clo]);
+  // --- garde à vue
+  const at = k => { const x = T.find(e => e[0] === (CHRONO[m.id].find(c => c[0] === k) || [,''])[1]); return x ? x[1] : null; };
+  if (m.id === 'vif' || m.id === 'filou') {
+    const gav = at('heureInterp');
+    if (gav === null) W.push('Heure d’interpellation non saisie : c’est elle qui fait courir la garde à vue.');
+    if (m.id === 'vif' && gav !== null && at('heureNotif') !== null) { const dl = at('heureNotif') - gav;
+      if (dl > 30) W.push(`Notification des droits ${dl} min après l’interpellation : elle doit être immédiate, sauf état ne permettant pas de la comprendre (ivresse) à justifier dans le rapport.`); else OK.push(`Notification des droits ${dl} min après l’interpellation.`); }
+    if (m.id === 'filou' && gav !== null && at('heureParquet') !== null) { const dl = at('heureParquet') - gav;
+      if (dl > 60) W.push(`Avis au parquet ${dl} min après le début de la garde à vue : il doit intervenir dès le début de la mesure.`); else OK.push(`Avis au parquet ${dl} min après le début de la garde à vue.`); }
+    if (gav !== null && last !== null && last - gav > 24 * 60) E.push('Plus de 24 h entre l’interpellation et le dernier acte : vérifier la prolongation de la garde à vue.');
+  }
+  if (m.id === 'route' || m.id === 'stup') { const a = at('heureStup'), b = at('heureLecture'); if (a !== null && b !== null && b === a) W.push('Lecture du test salivaire à la même minute que le prélèvement : vérifier l’heure de lecture.'); }
+  if (!E.length && !W.length && T.length > 1) OK.push('Chronologie cohérente.');
+  T.sort((a, b) => a[1] - b[1]);
+  return { E, W, OK, T };
+}
+function chronoHTML(m, v){
+  const r = checkChrono(m, v);
+  const li = (cls, ic, t) => `<div class="ck ${cls}"><span>${ic}</span><span>${esc(t)}</span></div>`;
+  return `<h3 style="color:var(--navy)">Contrôle des dates et heures</h3>`
+    + r.E.map(t => li('err','✖',t)).join('') + r.W.map(t => li('warn','⚠',t)).join('') + r.OK.map(t => li('ok','✓',t)).join('')
+    + (r.T.length ? `<div class="tl">${r.T.map(([l,t]) => `<div><b>${fmtH(t)}</b> ${esc(l)}</div>`).join('')}</div>` : '<p class="hint">Saisissez les heures pour obtenir la chronologie.</p>');
+}
+
+
+/* ====================== INTERFACE ====================== */
+/* ---- Exemples modifiables (listes de phrases) ---- */
+const PRESETS = {
+  contexte: ['Elle indique qu’il a consommé de l’alcool au cours de la soirée, comme à son habitude.','Elle indique qu’il n’a pas consommé d’alcool ce soir.','Elle précise que les disputes sont fréquentes depuis plusieurs mois.','Elle précise que des violences ont déjà eu lieu par le passé, sans dépôt de plainte.','Elle précise qu’une séparation est en cours.'],
+  faits: ['il l’aurait giflée au visage avec la main droite','il l’aurait saisie par le bras et poussée contre le mur','il l’aurait repoussée en arrière en la saisissant au niveau de la gorge avec ses deux mains ; elle n’est pas tombée','il l’aurait insultée et menacée de mort','il lui aurait arraché son téléphone portable pour l’empêcher d’appeler les secours'],
+  comportMec: ['calme et coopérant','calme, il répond à nos questions','agité et verbalement agressif','sous l’emprise apparente de l’alcool','mutique','en pleurs'],
+  declaration: ['Je ne l’ai pas touchée.','On s’est disputés, c’est tout.','Je l’ai juste repoussée.','C’est elle qui m’a frappé en premier.','Je regrette.'],
+  pSituation: ['concubinage','marié','pacsé (PACS)','séparé','divorcé','célibataire'],
+};
+function presetList(k){ const P = state.profil; P.lists = P.lists || {}; const key = 'ph_' + k; if (!Array.isArray(P.lists[key])) P.lists[key] = PRESETS[k].slice(); return P.lists[key]; }
+function presetBar(k, el, onchange, isText){
+  const bar = document.createElement('div'); bar.className = 'lrow';
+  const ps = document.createElement('select'); ps.className = 'phr';
+  const fill = () => { const L = presetList(k), Hh = NOLEARN.has(k) ? [] : hist(k).filter(t => !L.includes(t));
+    ps.innerHTML = '<option value="">↳ Exemples et phrases déjà saisies…</option>' + L.map((t,i) => `<option value="p${i}">${esc(t.length > 90 ? t.slice(0,90) + '…' : t)}</option>`).join('')
+      + (Hh.length ? '<option disabled>── déjà saisies ──</option>' + Hh.map((t,i) => `<option value="h${i}">${esc(t.length > 90 ? t.slice(0,90) + '…' : t)}</option>`).join('') : '')
+      + '<option value="save">+ Enregistrer le texte actuel comme exemple</option><option value="manage">✎ Retirer des exemples…</option>';
+    ps._H = Hh; };
+  fill();
+  ps.onchange = async () => { const v = ps.value; ps.value = ''; if (!v) return; const L = presetList(k);
+    if (v === 'save') { const t = el.value.trim(); if (!t) { toast('Le champ est vide'); return; } if (!L.includes(t)) L.push(t); persist(); fill(); toast('Exemple enregistré'); return; }
+    if (v === 'manage') { const items = L.map((t,i) => (i+1) + '. ' + (t.length > 60 ? t.slice(0,60) + '…' : t)).join('\n');
+      const r = await askText('Numéro(s) des exemples à retirer, séparés par des virgules :\n\n' + items); if (!r) return;
+      r.split(/[ ,;]+/).map(n => parseInt(n,10) - 1).filter(n => n >= 0 && n < L.length).sort((a,b) => b - a).forEach(n => L.splice(n,1)); persist(); fill(); return; }
+    const t = v[0] === 'p' ? L[+v.slice(1)] : ps._H[+v.slice(1)];
+    el.value = (!isText && el.value.trim()) ? el.value.trim().replace(/[.;]?$/, '') + ' ; ' + t : t; onchange(el.value); };
+  bar.appendChild(ps); return bar;
+}
+const $ = s => document.querySelector(s);
+function input(k, value, onchange){
+  if (F[k][1] === 'l' || (F[k][1] === 's' && !FIXED.has(k))) return learnInput(k, value, onchange);
+  const [lab, type, extra] = F[k]; const wrap = document.createElement('label'); wrap.className = 'f';
+  wrap.innerHTML = `<span>${esc(lab)}</span>`; let el;
+  const learnable = !NOLEARN.has(k) && (type === 't' || type === 'a');
+  const H = learnable ? hist(k) : [];
+  if (type === 's'){ el = document.createElement('select'); el.innerHTML = '<option value="">—</option>' + extra.map(o=>`<option>${esc(o)}</option>`).join(''); }
+  else if (type === 'a' && PRESETS[k]){ el = document.createElement('textarea'); if (extra) el.placeholder = extra; wrap.appendChild(presetBar(k, el, onchange, false)); }
+  else if (type === 'a'){ el = document.createElement('textarea'); if (extra) el.placeholder = extra;
+    if (H.length){ const ps = document.createElement('select'); ps.className = 'phr';
+      ps.innerHTML = '<option value="">↳ Phrases déjà saisies…</option>' + H.map((t,i) => `<option value="${i}">${esc(t.length > 90 ? t.slice(0,90) + '…' : t)}</option>`).join('');
+      ps.onchange = () => { if (ps.value === '') return; el.value = H[+ps.value]; ps.value = ''; onchange(el.value); };
+      wrap.appendChild(ps); } }
+  else if (type === 'g'){ el = document.createElement('input'); el.type = 'text'; el.setAttribute('list','dlGrades'); el.placeholder = 'choisir ou saisir'; }
+  else { el = document.createElement('input'); el.type = type === 'd' ? 'date' : type === 'h' ? 'time' : 'text'; if (extra && type==='t') el.placeholder = extra; if (type==='t') el.autocapitalize = 'off'; }
+  if (type === 't' && PRESETS[k]) wrap.appendChild(presetBar(k, el, onchange, true));
+  else if (learnable && type === 't' && H.length){ const id = 'hl_' + k + '_' + Math.random().toString(36).slice(2,7); const dl = document.createElement('datalist'); dl.id = id;
+    dl.innerHTML = H.map(t => `<option value="${esc(t)}">`).join(''); wrap.appendChild(dl); el.setAttribute('list', id); el.placeholder = 'choisir ou saisir'; }
+  if (learnable) el.addEventListener('change', () => learn(k, el.value));
+  el.value = value || ''; el.addEventListener('input', () => onchange(el.value));
+  if (type === 'h' || type === 'd') {
+    const row = document.createElement('div'); row.className = 'lrow'; row.appendChild(el);
+    const nb = document.createElement('button'); nb.type = 'button'; nb.className = 'btn alt sm now'; nb.textContent = type === 'h' ? 'Maintenant' : 'Aujourd\u2019hui';
+    nb.onclick = e => { e.preventDefault(); el.value = type === 'h' ? nowHM() : today(); onchange(el.value); };
+    row.appendChild(nb); wrap.appendChild(row); return wrap;
+  }
+  wrap.appendChild(el); return wrap;
+}
+const pad = n => String(n).padStart(2, '0');
+function today(){ const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function nowHM(){ const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+/* ---- Saisie rapide : dates du jour et patrouille reprise d'un rapport à l'autre ---- */
+const PATROL = ['dateFaits','service','vehService','commune','insee','equipiers'];
+function prefill(m, dv){
+  if (m.id === 'route' && dv.resFichiers && !dv.resFich) { dv.resFich = [dv.resFichiers]; }
+  if (dv._init) return; dv._init = true;
+  const keys = new Set(m.groups.flatMap(g => g[1]));
+  ['dateRed','dateClos','dateFaits'].forEach(k => { if (keys.has(k) && !dv[k]) dv[k] = today(); });
+  const P = state.profil.patrol || {};
+  PATROL.forEach(k => { if (k === 'dateFaits') return; const has = k === 'equipiers' ? keys.has('equipage') : keys.has(k);
+    if (has && P[k] && !(dv[k] && (dv[k].length || String(dv[k]).trim()))) dv[k] = JSON.parse(JSON.stringify(P[k])); });
+}
+function savePatrol(dv){ const P = state.profil.patrol = state.profil.patrol || {};
+  PATROL.forEach(k => { if (k !== 'dateFaits' && dv[k] && (Array.isArray(dv[k]) ? dv[k].length : String(dv[k]).trim())) P[k] = JSON.parse(JSON.stringify(dv[k])); }); }
+function equipageEditor(dv, onchange){
+  const box = document.createElement('div'); box.className = 'eqbox';
+  const roster = state.profil.roster = state.profil.roster || [];
+  dv.equipiers = dv.equipiers || [];
+  const draw = () => {
+    box.innerHTML = '<div class="eqhead">Équipiers (patrouille avec le rédacteur)</div>';
+    dv.equipiers.forEach((e, i) => {
+      const card = document.createElement('div'); card.className = 'eqcard';
+      card.innerHTML = `<div class="eqtop"><b>Équipier ${i+1}</b><span><button type="button" class="lnk" data-a="save">Mémoriser</button><button type="button" class="lnk red" data-a="del">Retirer</button></span></div>
+        <div class="eqgrid">
+          <label class="f"><span>Grade</span><input list="dlGrades" data-k="grade" placeholder="choisir ou saisir"></label>
+          <label class="f"><span>Qualité</span><select data-k="qualite"><option value="">—</option>${QUALITES.map(q=>`<option>${q}</option>`).join('')}</select></label>
+          <label class="f"><span>Prénom</span><input data-k="prenom" autocapitalize="words"></label>
+          <label class="f"><span>NOM</span><input data-k="nom" autocapitalize="characters"></label>
+        </div>
+        <label class="row" style="margin:6px 0 0;font-size:13px"><input type="checkbox" data-k="reserve"> Réserviste</label>`;
+      card.querySelectorAll('[data-k]').forEach(el => {
+        const k = el.dataset.k;
+        if (el.type === 'checkbox') el.checked = !!e[k]; else el.value = e[k] || '';
+        el.addEventListener(el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input', () => { e[k] = el.type === 'checkbox' ? el.checked : el.value; onchange(); });
+      });
+      card.querySelector('[data-a=del]').onclick = () => { dv.equipiers.splice(i,1); onchange(); draw(); };
+      card.querySelector('[data-a=save]').onclick = () => {
+        if (!e.nom) { toast('Indiquez au moins le nom'); return; }
+        const key = x => (x.prenom||'') + '|' + (x.nom||'').toUpperCase();
+        const j = roster.findIndex(r => key(r) === key(e)); const copy = { grade:e.grade||'', prenom:e.prenom||'', nom:(e.nom||'').toUpperCase(), qualite:e.qualite||'', reserve:!!e.reserve };
+        if (j >= 0) roster[j] = copy; else roster.push(copy); persist(); toast('Équipier mémorisé'); draw();
+      };
+      box.appendChild(card);
+    });
+    const bar = document.createElement('div'); bar.className = 'eqbar';
+    bar.innerHTML = `<button type="button" class="btn alt sm" data-a="add">+ Ajouter un équipier</button>` +
+      (roster.length ? `<select class="sm" data-a="pick"><option value="">+ Équipiers habituels…</option>${roster.map((r,i)=>`<option value="${i}">${esc((r.grade||'')+' '+(r.prenom||'')+' '+(r.nom||''))}</option>`).join('')}</select>` : '');
+    bar.querySelector('[data-a=add]').onclick = () => { dv.equipiers.push({ reserve:false }); onchange(); draw(); };
+    const pick = bar.querySelector('[data-a=pick]');
+    if (pick) pick.onchange = () => { if (pick.value === '') return; dv.equipiers.push(Object.assign({}, roster[+pick.value])); onchange(); draw(); };
+    box.appendChild(bar);
+    if (roster.length){
+      const mg = document.createElement('div'); mg.className = 'hint'; mg.style.marginTop = '6px';
+      mg.innerHTML = 'Équipiers mémorisés : ' + roster.length + ' – <button type="button" class="lnk red" data-a="clr">vider la liste</button>';
+      mg.querySelector('[data-a=clr]').onclick = async () => { if (!await ask('Vider la liste des équipiers habituels ?')) return; roster.length = 0; persist(); draw(); };
+      box.appendChild(mg);
+    }
+  };
+  draw(); return box;
+}
+/* ---- Historique des saisies (listes de choix au fil du temps) ---- */
+// Champs jamais mémorisés : identités, coordonnées, déclarations, numéros uniques
+const NOLEARN = new Set(['pNom','pNeA','pAdresse','pTel','pPere','pMere','pieceId','vNom','vNeA','vTel','gNom','gNeA','gAdresse',
+  'vehImmat','declaration','faits','contexte','temoins','tiers','numPV','dossier','numImmo','numAvis','numRetention','portalisCoord','adresse','redNom']);
+const HMAX = { t: 30, a: 15 };
+function hist(k){ const P = state.profil; P.hist = P.hist || {}; return P.hist[k] || []; }
+function learn(k, v){ v = (v || '').trim(); if (!v || v.length > 600 || NOLEARN.has(k)) return;
+  const P = state.profil; P.hist = P.hist || {}; const L = (P.hist[k] || []).filter(x => x.toLowerCase() !== v.toLowerCase());
+  L.unshift(v); P.hist[k] = L.slice(0, F[k][1] === 'a' ? HMAX.a : HMAX.t); persist(); }
+/* ---- Listes de choix qui s'enrichissent ---- */
+// Listes à choix fixes (non modifiables) : valeurs utilisées par la mise en forme du texte
+const FIXED = new Set(['typePV','modeNotif','redReserve','civ','pSexe','ctEchu','resAlc','portalis','alcRes','stupRes']);
+const LEARN = { compagnie:['PORNIC'], unite:['COB de Pornic'], codeUnite:['14909'] };
+const UNIT_DEF = { 'COB de Pornic': { compagnie:'PORNIC', codeUnite:'14909' } };
+function ensureLists(){
+  const P = state.profil; P.lists = P.lists || {}; P.units = P.units || {};
+  for (const k in LEARN) if (!Array.isArray(P.lists[k])) P.lists[k] = LEARN[k].slice();
+  for (const k in F) if (F[k][1] === 's' && !FIXED.has(k) && !Array.isArray(P.lists[k])) P.lists[k] = F[k][2].slice();
+  if (Array.isArray(P.lists.motifCtrl) && !P.lists.motifCtrl.some(v => /SIV/.test(v))) {
+    const OLD = ['infraction au code de la route','raisons plausibles de soupçonner l\'usage de stupéfiants','réquisitions du procureur de la République','accident matériel de la circulation'];
+    P.lists.motifCtrl = F.motifCtrl[2].concat(P.lists.motifCtrl.filter(v => !OLD.includes(v)));
+  }
+  if (Array.isArray(P.lists.sortVeh) && !P.lists.sortVeh.includes('laissé à la disposition du conducteur')) P.lists.sortVeh.unshift('laissé à la disposition du conducteur');
+  if (Array.isArray(P.lists.sortVeh) && !P.lists.sortVeh.some(x => /provisoire/i.test(x))) P.lists.sortVeh.splice(1, 0, 'fiche d\'immobilisation provisoire');
+  for (const u in UNIT_DEF) if (!P.units[u]) P.units[u] = Object.assign({}, UNIT_DEF[u]);
+}
+function remember(k, v){ ensureLists(); v = (v || '').trim(); if (!v) return; const L = state.profil.lists[k];
+  if (!L.some(x => x.toLowerCase() === v.toLowerCase())) { L.push(v); if (F[k][1] === 'l') L.sort((a,b) => a.localeCompare(b,'fr')); } }
+function learnInput(k, value, onchange){
+  ensureLists();
+  const wrap = document.createElement('div'); wrap.className = 'f learn';
+  wrap.innerHTML = `<span class="lbl">${esc(F[k][0])}</span><div class="lrow"><select></select><button type="button" class="lnk red" title="Retirer de la liste">Retirer</button></div><input type="text" placeholder="Saisir la nouvelle valeur puis valider" style="display:none">`;
+  const sel = wrap.querySelector('select'), txt = wrap.querySelector('input'), del = wrap.querySelector('button');
+  if (value) remember(k, value);
+  let current = value || '';
+  const fill = cur => { current = cur;
+    const L = state.profil.lists[k];
+    sel.innerHTML = '<option value="">—</option>' + L.map(o => `<option${o === cur ? ' selected' : ''}>${esc(o)}</option>`).join('') + '<option value="__new">+ Ajouter une valeur…</option>';
+    del.style.visibility = cur ? 'visible' : 'hidden';
+  };
+  fill(value || '');
+  sel.onchange = () => {
+    if (sel.value === '__new') { txt.style.display = ''; txt.value = ''; txt.focus(); return; }
+    txt.style.display = 'none'; fill(sel.value); onchange(sel.value);
+  };
+  const commit = () => { const v = txt.value.trim(); if (!v) { txt.style.display = 'none'; fill(current); return; }
+    remember(k, v); txt.style.display = 'none'; fill(v); onchange(v); persist(); toast('Ajouté à la liste'); };
+  txt.addEventListener('change', commit);
+  txt.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); txt.blur(); } });
+  del.onclick = async () => { const v = sel.value; if (!v || v === '__new') return; if (!await ask('Retirer « ' + v + ' » de la liste ?')) return;
+    const L = state.profil.lists[k]; const i = L.indexOf(v); if (i >= 0) L.splice(i, 1);
+    if (k === 'unite') delete state.profil.units[v];
+    fill(''); onchange(''); persist(); };
+  return wrap;
+}
+function renderProfil(){
+  ensureLists();
+  const box = $('#profilFields'); box.innerHTML = '';
+  PROFIL.forEach(k => box.appendChild(input(k, state.profil[k], val => {
+    state.profil[k] = val;
+    if (k === 'unite' && state.profil.units[val]) {          // une unité connue remplit compagnie et code unité
+      Object.assign(state.profil, state.profil.units[val]); persist(); refresh(); renderProfil(); return;
+    }
+    persist(); refresh();
+  })));
+}
+function saveUnitPair(){ ensureLists(); const P = state.profil;
+  if (P.unite) { P.units[P.unite] = { compagnie: P.compagnie || '', codeUnite: P.codeUnite || '' }; remember('unite', P.unite); }
+  if (P.compagnie) remember('compagnie', P.compagnie); if (P.codeUnite) remember('codeUnite', P.codeUnite); persist(); }
+const ICONS = {
+  route:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-4.5l-1.8-4.6A2 2 0 0 0 15.3 6.6H8.7a2 2 0 0 0-1.9 1.3L5 12.5z"/><path d="M5 12.5h14"/><circle cx="8" cy="15" r=".6" fill="currentColor"/><circle cx="16" cy="15" r=".6" fill="currentColor"/><path d="M6.5 17v1.8M17.5 17v1.8"/></svg>',
+  pers:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 8.2-7 10-4-1.8-7-5.6-7-10V6z"/><circle cx="12" cy="10" r="2.3"/><path d="M8.6 15.6c.8-1.5 2-2.2 3.4-2.2s2.6.7 3.4 2.2"/></svg>',
+};
+const ORD = ['route','ct','stup','pc','vif','filou'];
+const CATS = [['route','Contrôles routiers'],['pers','Atteintes aux personnes et aux biens']];
+function selectModel(id){ state.cur = id; persist(); renderModels(); renderForm(); refresh(); }
+function renderModels(){
+  const m = cur(); const catLabel = (CATS.find(c => c[0] === m.cat) || [,''])[1];
+  $('#models').innerHTML = `<button class="picker" id="btnModels" aria-label="Changer de type de rapport">
+    <span class="ico ${m.cat}">${ICONS[m.cat]}</span>
+    <span class="t"><div class="s">${esc(catLabel)}</div><div class="n">${esc(m.nom)}</div><div class="s">${esc(m.sous)}</div></span>
+    <span class="chev">Changer ▾</span></button>`;
+  $('#btnModels').onclick = () => {
+    $('#mlist').innerHTML = CATS.map(([c, lab]) => `<div class="cat">${esc(lab)}</div><div class="mlist">` +
+      MODELS.filter(x => x.cat === c).sort((a,b) => ORD.indexOf(a.id) - ORD.indexOf(b.id)).map(x => `<button class="mitem ${x.id === state.cur ? 'on' : ''}" data-id="${x.id}">
+        <span class="ico ${c}">${ICONS[c]}</span><span><div class="n">${esc(x.nom)}</div><div class="s">${esc(x.sous)}</div></span><span class="num">en cours</span></button>`).join('') + '</div>').join('');
+    $('#mlist').querySelectorAll('.mitem').forEach(b => b.onclick = () => { $('#dlgModels').close(); selectModel(b.dataset.id); });
+    $('#dlgModels').showModal();
+  };
+}
+function renderForm(){
+  const m = cur(), box = $('#form'); box.innerHTML = '';
+  if (!PROFIL.some(k => state.profil[k])){
+    const pv = document.createElement('div'); pv.className = 'privacy';
+    pv.innerHTML = 'Commencez par renseigner votre <b>Profil</b> (unité, grade, OPJ) : il est repris dans tous les rapports.';
+    box.appendChild(pv);
+  }
+  if (!state.save){ const pv = document.createElement('div'); pv.className = 'privacy'; pv.textContent = 'Saisies non conservées après fermeture (voir ⚙︎ Paramètres).'; box.appendChild(pv); }
+  state.data[m.id] = state.data[m.id] || {};
+  prefill(m, state.data[m.id]);
+  const dv = state.data[m.id];
+  state.open = state.open || {};
+  const rerender = () => { const y = window.scrollY, fy = $('#form').scrollTop; renderForm(); refresh(); window.scrollTo(0, y); $('#form').scrollTop = fy; };
+  const cv = () => Object.assign({}, state.profil, dv);
+  m.groups.forEach(([titre, allKeys], gi) => {
+    const keys = allKeys.filter(k => !(m.hide && m.hide(k, cv())));
+    if (!keys.length) return;
+    const okey = m.id + '|' + titre;
+    const det = document.createElement('details'); det.className = 'grp'; det.open = okey in state.open ? state.open[okey] : gi < 2;
+    det.addEventListener('toggle', () => { state.open[okey] = det.open; });
+    const sum = document.createElement('summary'); const cnt = document.createElement('span'); cnt.className = 'fill';
+    const filled = k => k === 'equipage' ? (dv.equipiers || []).some(e => e && e.nom) : (k === 'infr' || k === 'signes' || k === 'etatVictime' || k === 'mesuresVictime' || k === 'droits' || k === 'resFich') ? (dv[k] || []).length > 0 : (dv[k] && String(dv[k]).trim());
+    const upd = () => { const n = keys.filter(filled).length; cnt.textContent = n + '/' + keys.length; updEmpty(); };
+    sum.textContent = titre; sum.appendChild(cnt); det.appendChild(sum); upd();
+    const fs = document.createElement('div'); fs.className = 'fields';
+    keys.forEach(k => {
+      const t = F[k][1];
+      const after = (structural) => { upd(); savePatrol(dv); persist(); if (structural || (m.deps || []).includes(k)) setTimeout(rerender, 0); else refresh(); };
+      const n0 = fs.children.length;
+      if (t === 'eq') fs.appendChild(equipageEditor(dv, () => after()));
+      else if (t === 'infr') fs.appendChild(infrEditor(dv, st => after(st)));
+      else if (t === 'sig') fs.appendChild(signesEditor(dv, () => after()));
+      else if (t === 'etat') fs.appendChild(etatEditor(dv, () => after()));
+      else if (t === 'mesv') fs.appendChild(mesvEditor(dv, () => after()));
+      else if (t === 'droits') fs.appendChild(droitsEditor(dv, () => after()));
+      else if (t === 'resf') fs.appendChild(resfEditor(dv, st => after(st)));
+      else fs.appendChild(input(k, dv[k], val => { dv[k] = val; const ch = applyLinks(m, dv, k); after(ch && F[k][1] !== 't'); if (ch && F[k][1] === 't') clearTimeout(window._lt), window._lt = setTimeout(rerender, 700); }));
+      if (fs.children[n0]) fs.children[n0].dataset.key = k;
+    });
+    det.appendChild(fs); box.appendChild(det);
+  });
+  const jb = document.createElement('div'); jb.className = 'jumpwrap';
+  jb.innerHTML = '<button type="button" class="jumpbtn" id="btnJump" aria-label="Aller au prochain champ vide">↓ Case vide <span id="nEmpty"></span></button>';
+  box.appendChild(jb); $('#btnJump').onclick = jumpEmpty; updEmpty();
+}
+const ARRK = new Set(['infr','signes','etatVictime','mesuresVictime','droits','resFich']);
+function isFilledK(dv, k){ if (k === 'equipage') return (dv.equipiers || []).some(e => e && e.nom); if (ARRK.has(k)) return [].concat(dv[k] || []).length > 0; return dv[k] != null && String(dv[k]).trim() !== ''; }
+function emptyKeys(){ const dv = state.data[cur().id] || {}; return [...document.querySelectorAll('#form [data-key]')].filter(w => !isFilledK(dv, w.dataset.key)); }
+function updEmpty(){ const n = document.getElementById('nEmpty'); if (!n) return; const e = emptyKeys().length; n.textContent = e ? '(' + e + ')' : '✓'; document.getElementById('btnJump').classList.toggle('done', !e); }
+function jumpEmpty(){
+  const E = emptyKeys(); if (!E.length) { toast('Tous les champs sont remplis'); return; }
+  const all = [...document.querySelectorAll('#form [data-key]')], li = all.findIndex(y => y.dataset.key === jumpEmpty.last);
+  const w = E.find(x => all.indexOf(x) > li) || E[0];
+  const det = w.closest('details'); if (det && !det.open) det.open = true;
+  w.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const f = w.querySelector('input:not([type=checkbox]):not([type=hidden]), select:not(.phr), textarea');
+  setTimeout(() => { if (f) try { f.focus({ preventScroll: true }); } catch(e) {} }, 300);
+  w.classList.add('flash'); setTimeout(() => w.classList.remove('flash'), 1400);
+  jumpEmpty.last = w.dataset.key;
+}
+function refresh(){
+  const r = build(); $('#doc').innerHTML = toHTML(r);
+  const miss = (document.querySelectorAll('#doc mark.m') || []).length;
+  const bm = $('#bMiss'); bm.textContent = miss ? miss : '✓'; bm.className = 'badge' + (miss ? '' : ' ok');
+  const nErr = checkChrono(cur(), vals()).E.length; const be = $('#bErr'); if (be) { be.textContent = nErr ? '✖ ' + nErr : ''; be.style.display = nErr ? '' : 'none'; }
+  const m = cur(); const ck = state.checks[m.id] = state.checks[m.id] || {};
+  const cr = checkChrono(m, vals());
+  $('#chk').innerHTML = (cr.E.length || cr.W.length) ? `<div class="chkbox">${cr.E.map(t => `<div class="ck err"><span>✖</span><span>${esc(t)}</span></div>`).join('')}${cr.W.map(t => `<div class="ck warn"><span>⚠</span><span>${esc(t)}</span></div>`).join('')}<button type="button" class="lnk" onclick="document.getElementById('vig').scrollIntoView({behavior:'smooth'})">Voir la chronologie complète ↓</button></div>` : '';
+  $('#vig').innerHTML = chronoHTML(m, vals()) + `<h3 style="margin-top:14px">Points de vigilance avant de signer</h3>` + (typeof m.vig === 'function' ? m.vig(vals()) : m.vig).map((t,i) => `<label><input type="checkbox" data-i="${i}" ${ck[i]?'checked':''}> <span>${esc(t)}</span></label>`).join('')
+    + `<p class="hint" style="margin-top:8px">${miss ? miss + ' champ(s) encore à compléter (surlignés en jaune).' : 'Tous les champs sont complétés.'}</p>`;
+  $('#vig').querySelectorAll('input').forEach(c => c.onchange = () => { ck[c.dataset.i] = c.checked; });
+}
+function toast(t){ const e = $('#toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('on'), 2200); }
+
+$('#tabs').querySelectorAll('button').forEach(b => b.onclick = () => {
+  $('#tabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === b.dataset.p)); window.scrollTo(0,0);
+});
+$('#btnCopy').onclick = async () => {
+  const t = toText(build());
+  try { await navigator.clipboard.writeText(t); toast('Texte copié – à coller dans le LRPGN'); }
+  catch(e){ const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); toast('Texte copié'); }catch(_){ toast('Copie impossible'); } ta.remove(); }
+};
+$('#btnWord').onclick = () => {
+  const css = document.querySelector('style').textContent.match(/\.doc[^{]*\{[^}]*\}/g).join('\n').replace(/\.doc /g,'').replace(/\.doc\{/g,'body{');
+  const body = $('#doc').innerHTML.replace(/<mark class="m">/g,'<span style="background:#fff3b0;font-weight:bold">').replace(/<\/mark>/g,'</span>').replace(/<table class="(ref|id)">/g,'<table class="$1" border="1" cellspacing="0" cellpadding="4" style="border-collapse:collapse;width:100%;border:1px solid #999">');
+  const doc = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${esc(cur().titre)}</title>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+<style>@page{size:21cm 29.7cm;margin:2cm} body{font-family:Arial;font-size:10.5pt} ${css} .sig{text-align:center;margin-top:28px} mark.m{background:#fff3b0} span.v{background:#ffe066}</style></head><body>${body}</body></html>`;
+  const blob = new Blob(['﻿', doc], { type: 'application/msword' });
+  const v = vals(); const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `Rapport_${cur().id}_${(v.dateFaits||v.dateRed||'brouillon')}.doc`;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  toast('Fichier Word téléchargé');
+};
+$('#btnPrint').onclick = () => window.print();
+$('#btnNew').onclick = async () => { if (!await ask('Effacer la saisie de ce modèle ?')) return; state.data[state.cur] = {}; state.checks[state.cur] = {}; persist(); renderForm(); refresh(); toast('Nouveau rapport'); };
+
+// Profil
+$('#closeModels').onclick = () => $('#dlgModels').close();
+$('#btnProfil').onclick = () => { renderProfil(); $('#dlgProfil').showModal(); };
+$('#closeProfil').onclick = () => { saveUnitPair(); $('#dlgProfil').close(); renderForm(); refresh(); toast('Profil enregistré'); };
+// Paramètres
+$('#btnParam').onclick = () => { $('#optSave').checked = state.save; $('#dlgParam').showModal(); };
+$('#optSave').onchange = e => { state.save = e.target.checked; persist(); renderForm(); };
+$('#closeParam').onclick = () => $('#dlgParam').close();
+$('#btnHist').onclick = async () => { if (!await ask('Vider les valeurs mémorisées dans les listes de choix des rapports ?')) return; state.profil.hist = {}; persist(); renderForm(); toast('Listes vidées'); };
+$('#btnWipe').onclick = async () => { if (!await ask('Effacer le profil et toutes les saisies de cet appareil ?')) return;
+  ['apja.profil','apja.data','apja.cur','apja.save'].forEach(LS.del); state.profil = {}; state.data = {}; state.checks = {}; state.save = false;
+  $('#dlgParam').close(); renderForm(); refresh(); toast('Données effacées'); };
+
+document.getElementById('dlGrades').innerHTML = GRADES.map(g=>`<option value="${g}">`).join('');
+renderModels(); renderForm(); refresh();
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
