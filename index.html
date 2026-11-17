@@ -242,7 +242,7 @@ dialog h2{margin:0 0 10px;color:var(--navy);font-size:18px}
     <button class="btn danger" id="btnWipe">Effacer toutes les données</button>
     <button class="btn" id="closeParam">Fermer</button>
   </div>
-  <p class="hint" style="margin-top:14px">Application autonome : aucune donnée n'est envoyée sur Internet. Modèles indicatifs, à adapter aux trames du LRPGN et aux consignes de l'OPJ. Version 2.19 – novembre 2026.</p>
+  <p class="hint" style="margin-top:14px">Application autonome : aucune donnée n'est envoyée sur Internet. Modèles indicatifs, à adapter aux trames du LRPGN et aux consignes de l'OPJ. Version 2.20 – novembre 2026.</p>
 </dialog>
 <div class="toast" id="toast"></div>
 <datalist id="dlGrades"></datalist>
@@ -1726,7 +1726,7 @@ const ICONS = {
   route:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-4.5l-1.8-4.6A2 2 0 0 0 15.3 6.6H8.7a2 2 0 0 0-1.9 1.3L5 12.5z"/><path d="M5 12.5h14"/><circle cx="8" cy="15" r=".6" fill="currentColor"/><circle cx="16" cy="15" r=".6" fill="currentColor"/><path d="M6.5 17v1.8M17.5 17v1.8"/></svg>',
   pers:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 8.2-7 10-4-1.8-7-5.6-7-10V6z"/><circle cx="12" cy="10" r="2.3"/><path d="M8.6 15.6c.8-1.5 2-2.2 3.4-2.2s2.6.7 3.4 2.2"/></svg>',
 };
-const ORD = ['route','ct','stup','pc','vif','filou'];
+const ORD = ['route','ct','stup','pc','vif','outrage','ipm','vol','degrad','filou'];
 const CATS = [['route','Contrôles routiers'],['pers','Atteintes aux personnes et aux biens']];
 /* ====================== RAPPORTS ENREGISTRÉS (en cours / finalisés) ====================== */
 function openReport(id){ const r = state.reports.find(x => x.id === id); if (!r) return; state.curId = id; state.cur = r.m; state.data[r.m] = r.data; persist(); renderModels(); renderForm(); refresh(); }
@@ -1818,7 +1818,7 @@ function renderForm(){
     const det = document.createElement('details'); det.className = 'grp'; det.open = okey in state.open ? state.open[okey] : gi < 2;
     det.addEventListener('toggle', () => { state.open[okey] = det.open; });
     const sum = document.createElement('summary'); const cnt = document.createElement('span'); cnt.className = 'fill';
-    const filled = k => k === 'equipage' ? (dv.equipiers || []).some(e => e && e.nom) : (k === 'infr' || k === 'signes' || k === 'etatVictime' || k === 'mesuresVictime' || k === 'droits' || k === 'resFich') ? (dv[k] || []).length > 0 : (dv[k] && String(dv[k]).trim());
+    const filled = k => k === 'equipage' ? (dv.equipiers || []).some(e => e && e.nom) : (k === 'infr' || k === 'signes' || k === 'etatVictime' || k === 'mesuresVictime' || k === 'droits' || k === 'resFich' || F[k][1] === 'tags') ? (dv[k] || []).length > 0 : (dv[k] && String(dv[k]).trim());
     const upd = () => { const n = keys.filter(filled).length; cnt.textContent = n + '/' + keys.length; updEmpty(); };
     sum.textContent = titre; sum.appendChild(cnt); det.appendChild(sum); upd();
     const fs = document.createElement('div'); fs.className = 'fields';
@@ -1833,6 +1833,7 @@ function renderForm(){
       else if (t === 'mesv') fs.appendChild(mesvEditor(dv, () => after()));
       else if (t === 'droits') fs.appendChild(droitsEditor(dv, () => after()));
       else if (t === 'resf') fs.appendChild(resfEditor(dv, st => after(st)));
+      else if (t === 'tags') fs.appendChild(genTags(dv, k, () => after()));
       else fs.appendChild(input(k, dv[k], val => { dv[k] = val; const ch = applyLinks(m, dv, k); after(ch && F[k][1] !== 't'); if (ch && F[k][1] === 't') clearTimeout(window._lt), window._lt = setTimeout(rerender, 700); }));
       if (fs.children[n0]) fs.children[n0].dataset.key = k;
     });
@@ -1843,7 +1844,7 @@ function renderForm(){
   box.appendChild(jb); $('#btnJump').onclick = jumpEmpty; updEmpty();
 }
 const ARRK = new Set(['infr','signes','etatVictime','mesuresVictime','droits','resFich']);
-function isFilledK(dv, k){ if (k === 'equipage') return (dv.equipiers || []).some(e => e && e.nom); if (ARRK.has(k)) return [].concat(dv[k] || []).length > 0; return dv[k] != null && String(dv[k]).trim() !== ''; }
+function isFilledK(dv, k){ if (k === 'equipage') return (dv.equipiers || []).some(e => e && e.nom); if (ARRK.has(k) || (F[k] && F[k][1] === 'tags')) return [].concat(dv[k] || []).length > 0; return dv[k] != null && String(dv[k]).trim() !== ''; }
 function emptyKeys(){ const dv = state.data[cur().id] || {}; return [...document.querySelectorAll('#form [data-key]')].filter(w => !isFilledK(dv, w.dataset.key)); }
 function updEmpty(){ const n = document.getElementById('nEmpty'); if (!n) return; const e = emptyKeys().length; n.textContent = e ? '(' + e + ')' : '✓'; document.getElementById('btnJump').classList.toggle('done', !e); }
 function jumpEmpty(){
@@ -1916,6 +1917,164 @@ $('#btnWipe').onclick = async () => { if (!await ask('Effacer le profil et TOUS 
   $('#dlgParam').close(); newReport(state.cur); toast('Données effacées'); };
 
 document.getElementById('dlGrades').innerHTML = GRADES.map(g=>`<option value="${g}">`).join('');
+
+/* ====================== NOUVEAUX MODÈLES : IPM, outrage / rébellion, vol à l'étalage, dégradations ====================== */
+Object.assign(F, {
+  lieuPublic:['Lieu public des constatations','t','ex. place de la Gare, devant le bar « Le Central »'],
+  heureFaits:['Heure des faits','h'], lieuFaits:['Lieu des faits','t'],
+  medecin:['Médecin (nom, établissement)','t','ex. Dr NOM, centre hospitalier de …'],
+  heureMed:['Heure de l\'examen médical','h'],
+  avisMed:['Avis du médecin','s',['compatible avec une retenue en chambre de sûreté','hospitalisation nécessaire']],
+  ipmIssue:['Issue de la mesure','s',['placé en chambre de sûreté jusqu\'à dégrisement','remis à un tiers qui se porte garant','hospitalisé']],
+  tiersGarant:['Tiers garant (identité, lien)','t'],
+  heureFin:['Heure de fin de rétention (dégrisement)','h'],
+  contexteInterv:['Motif de l\'intervention','a','ex. tapage sur la voie publique, contrôle d\'identité…'],
+  propos:['Propos outrageants (mot pour mot)','a'],
+  gestes:['Gestes ou comportement','a','ex. crachat au sol, doigt d\'honneur, se débat…'],
+  rebellion:['Actes de résistance violente','a','ex. se débat violemment, donne des coups de pied lors du menottage'],
+  victimesMil:['Militaires visés ou blessés (grade, nom)','a'],
+  blessures:['Blessures constatées','t','ex. griffure à l\'avant-bras droit, ITT à déterminer'],
+  infrOR:['Infractions','tags',['outrage à personne dépositaire de l\'autorité publique','rébellion','violences sur personne dépositaire de l\'autorité publique','menaces contre personne dépositaire de l\'autorité publique']],
+  magasin:['Établissement (nom)','t'], magasinAdr:['Adresse de l\'établissement','t'],
+  agentSec:['Agent de sécurité ou responsable (nom, qualité)','t'],
+  objets:['Objets dérobés (description, quantité)','a'],
+  valeur:['Valeur totale (€)','t'],
+  restitution:['Restitution','s',['objets restitués en bon état, revendables','objets restitués, non revendables','objets non restitués']],
+  video:['Vidéoprotection','s',['images de vidéoprotection conservées par l\'établissement','pas de vidéoprotection exploitable']],
+  retenue:['Appréhension','s',['retenu par l\'agent de sécurité jusqu\'à notre arrivée (art. 73 CPP)','surpris en flagrant délit par notre patrouille']],
+  plainteMag:['Plainte','s',['le responsable déclare vouloir déposer plainte','le responsable ne souhaite pas déposer plainte']],
+  suiteVol:['Suite donnée','s',['interpellation et conduite à l\'unité','convocation ultérieure par l\'OPJ','amende forfaitaire délictuelle, selon les instructions du parquet']],
+  bienDeg:['Bien dégradé','t','ex. vitrine du commerce, véhicule, abribus'],
+  proprio:['Propriétaire ou victime (nom, coordonnées)','t'],
+  degats:['Description des dégâts','a'],
+  estimation:['Estimation du préjudice (€)','t'],
+  photos:['Photographies','s',['photographies réalisées et annexées','aucune photographie']],
+  auteur:['Auteur','s',['auteur identifié sur place','auteur inconnu']],
+  natDeg:['Nature de l\'infraction','s',['destruction ou dégradation du bien d\'autrui','dégradation légère (dommage léger)','inscription, signe ou dessin sans autorisation (tag)']],
+  plainteVict:['Plainte de la victime','s',['la victime déclare vouloir déposer plainte','la victime ne souhaite pas déposer plainte']],
+  suiteDeg:['Suite donnée','s',['interpellation et conduite à l\'unité','convocation ultérieure par l\'OPJ','enquête à poursuivre (auteur inconnu)']],
+});
+const GEN_TAGS = {};
+function genTags(dv, k, onchange){ const P = state.profil; P.lists = P.lists || {}; const key = 'tg_' + k;
+  if (!Array.isArray(P.lists[key])) P.lists[key] = F[k][2].slice();
+  return tagsEditor(dv, onchange, k, () => P.lists[key], F[k][0] + ' (touchez pour sélectionner)', 'Autre choix à ajouter', null); }
+const tagsTxt = (x, k) => { const L = [].concat(x.v[k] || []).filter(Boolean); return L.length ? joinFr(L) : M(F[k][0]); };
+const saisinePers = (x, quoi) => { const {f,d,h} = x;
+  return x.has('requerant') ? p(`Le ${d('dateFaits',true)}, nous trouvant en service sur la commune de ${f('commune')}, en compagnie ${x.eq()}, notre intervention est sollicitée à ${h('heureSaisine')} par ${reqText(x)} pour ${quoi}. Nous nous transportons immédiatement sur les lieux, où nous arrivons à ${h('heureArrivee')}.`)
+    : p(`Le ${d('dateFaits',true)}, nous trouvant en service de ${f('service')} sur la commune de ${f('commune')}, en uniforme, en compagnie ${x.eq()}, à bord du véhicule de service ${f('vehService')}.`); };
+const identite = x => { const {f,d,g} = x; return `${g.civ} ${f('pNom')}, ${g.ne} le ${d('pNeLe')} à ${f('pNeA')}, demeurant ${f('pAdresse')}`; };
+const SAIS_KEYS = ['dateFaits','equipage','requerant','requerantPrec','heureSaisine','heureArrivee','service','vehService','commune','insee'];
+const PERS_KEYS = ['civ','pNom','pNeLe','pNeA','pAdresse','pIdentite'];
+
+MODELS.push(
+{ id:'ipm', reqInline:true, cat:'pers', nom:'Ivresse publique manifeste', sous:'Conduite à l’unité, examen médical, chambre de sûreté', titre:'RAPPORT D’INFRACTION – IVRESSE PUBLIQUE MANIFESTE',
+  deps:['ipmIssue','requerant'], hide:(k, v) => (k === 'tiersGarant' && !/tiers/.test(v.ipmIssue || '')) || (k === 'heureCS' && !/chambre/.test(v.ipmIssue || '')) || (['service','vehService'].includes(k) && !!v.requerant) || (k === 'heureArrivee' && !v.requerant),
+  groups:[REDAC,['Saisine',SAIS_KEYS],
+    ['Constatations',['heureConst','lieuPublic','signes','comportMec','heureDep','ethylotest','resEthylotest']],
+    ['Personne',PERS_KEYS.concat(['declaration'])],
+    ['Mesures',['heureAvis','heureUnite','medecin','heureMed','avisMed','ipmIssue','tiersGarant','heureCS','heureFin','typePV','numAvis']]],
+  body:x=>{ const {f,q,d,h,g,has,de,a} = x; const iss = x.f('ipmIssue'); return [
+    ['SAISINE',[saisinePers(x, 'un individu en état d’ivresse sur la voie publique')]],
+    ['CONSTATATIONS',[
+      p(`À ${h('heureConst')}, ${f('lieuPublic')}, lieu public, nous constatons la présence d’un individu présentant des signes manifestes d’ivresse : ${tagsTxt(x, 'signes')}. ${g.Il} est ${f('comportMec')}.`),
+      p(`${g.Il} est identifié${g.e} comme étant ${identite(x)} (${f('pIdentite')}).` + (has('declaration') ? ` Interrogé${g.e}, ${g.il} déclare spontanément : ${q('declaration')}.` : '')),
+      ...(has('heureDep') ? [p(`À ${h('heureDep')}, ${g.int} est soumis${g.e} à une épreuve de dépistage de l’imprégnation alcoolique au moyen d’un éthylotest ${f('ethylotest')}, qui indique ${f('resEthylotest')} mg/l d’air expiré.`)] : [])]],
+    ['MESURES PRISES',[
+      b(`À ${h('heureAvis')}, nous rendons compte ${a('opjGrade')} ${f('opjNom')}, Officier de police judiciaire.`),
+      b(`Par mesure de police (art. L. 3341-1 du Code de la santé publique), ${g.int} est conduit${g.e} à l’unité de ${f('bureau')}, où nous arrivons à ${h('heureUnite')}.`),
+      b(`À ${h('heureMed')}, ${g.int} est examiné${g.e} par ${f('medecin')}, qui conclut : ${f('avisMed')}.`),
+      b(/tiers/.test(iss) ? `${g.Int} est remis${g.e} à ${f('tiersGarant')}, qui se porte garant.` : /hospital/.test(iss) ? `${g.Int} est hospitalisé${g.e}.` : `À ${h('heureCS')}, ${g.int} est placé${g.e} en chambre de sûreté jusqu’à ce qu’${g.il} ait recouvré la raison.`),
+      ...(/chambre/.test(iss) || !has('ipmIssue') ? [b(`À ${h('heureFin')}, ${g.int} ayant recouvré la raison, il est mis fin à la mesure.`)] : []),
+      b(`La contravention est relevée par ${pvRef(x)}.`)]],
+    ['INFRACTION CONSTATÉE',[ind(`Ivresse publique manifeste – NATINF ${M('NATINF')} – le ${d('dateFaits')} à ${h('heureConst')}, ${f('lieuPublic')}, ${f('commune')} (INSEE : ${f('insee')}). Prévue par l’art. L. 3341-1 et réprimée par l’art. R. 3353-1 du Code de la santé publique. ${VER('à vérifier dans la base NATINF')}`)]],
+    ['CLÔTURE',[p('Le présent rapport est transmis à l’Officier de police judiciaire.')]],
+  ];},
+  vig:['Examen médical (certificat de non-admission) avant tout placement en chambre de sûreté.','Surveillance régulière de la personne en chambre de sûreté ; horodater les passages.','La retenue cesse dès que la personne a recouvré la raison : noter l’heure.','La remise à un tiers qui se porte garant est possible : noter son identité.','Mineur : aviser les parents ou le représentant légal.','Pas de garde à vue pour la seule ivresse : seulement si une infraction est commise.']
+},
+{ id:'outrage', reqInline:true, cat:'pers', nom:'Outrage / rébellion', sous:'Interpellation (art. 73 CPP) et garde à vue', titre:'RAPPORT D’INFRACTION ET D’INTERPELLATION',
+  deps:['modeNotif','requerant'], hide:(k, v) => (k === 'notifiant' && !/APJ,/.test(v.modeNotif || '')) || (['service','vehService'].includes(k) && !!v.requerant) || (k === 'heureArrivee' && !v.requerant),
+  groups:[REDAC,['Saisine',SAIS_KEYS],
+    ['Faits',['contexteInterv','heureFaits','lieuFaits','propos','gestes','rebellion','victimesMil','blessures','temoins','infrOR']],
+    ['Mis en cause',PERS_KEYS.concat(['declaration'])],
+    ['Interpellation et garde à vue',['heureInterp','menottage','heureAvis','heureUnite','modeNotif','heureNotif','notifiant','droits','heurePres']]],
+  body:x=>{ const {f,q,d,h,g,has,de,a} = x; const I = [].concat(x.v.infrOR || []);
+    const ART = [[/^outrage/,'art. 433-5 du Code pénal'],[/^rébellion/,'art. 433-6 et 433-7 du Code pénal'],[/^violences/,'art. 222-13 4° du Code pénal'],[/^menaces/,'art. 433-3 du Code pénal']];
+    return [
+    ['SAISINE',[saisinePers(x, f('contexteInterv'))]],
+    ['CONSTATATIONS',[
+      p(`À ${h('heureFaits')}, ${f('lieuFaits')}, alors que nous intervenons pour ${f('contexteInterv')}, ${g.civ} ${f('pNom')} nous adresse les propos suivants : ${q('propos')}.`),
+      ...(has('gestes') ? [p(`${g.Il} adopte en outre le comportement suivant : ${f('gestes')}.`)] : []),
+      ...(has('rebellion') ? [p(`Lors de son interpellation, ${g.il} oppose une résistance violente : ${f('rebellion')}.`)] : []),
+      p(`Militaires visés : ${f('victimesMil')}.` + (has('blessures') ? ` Blessures constatées : ${f('blessures')}.` : '')),
+      ...(has('temoins') ? [p(`Témoins des faits : ${f('temoins')}.`)] : []),
+      p(`${g.Int} est identifié${g.e} comme étant ${identite(x)} (${f('pIdentite')}).` + (has('declaration') ? ` ${g.Il} déclare spontanément : ${q('declaration')}.` : ''))]],
+    ['INTERPELLATION',[
+      p(`À ${h('heureInterp')}, vu l’article 73 du Code de procédure pénale, nous procédons à l’interpellation de ${g.civ} ${f('pNom')}. ${g.Il} est ${f('menottage')}.`),
+      b(`À ${h('heureAvis')}, nous rendons compte ${a('opjGrade')} ${f('opjNom')}, Officier de police judiciaire, qui décide du placement en garde à vue.`),
+      b(`À ${h('heureUnite')}, arrivée à l’unité de ${f('bureau')}.`),
+      b(notifVif(x)), b(droitsText(x)),
+      b(`À ${h('heurePres')}, ${g.int} est présenté${g.e} ${a('opjGrade')} ${f('opjNom')}, Officier de police judiciaire, pour la suite de l’enquête.`)]],
+    ['INFRACTION(S) CONSTATÉE(S)', I.length ? I.flatMap((t, i) => { const art = (ART.find(([re]) => re.test(t)) || [, M('texte')])[1];
+        return [sub(`${i + 1}. ${t.charAt(0).toUpperCase() + t.slice(1)}`), ind(`NATINF ${M('NATINF')} – le ${d('dateFaits')} à ${h('heureFaits')}, ${f('lieuFaits')}, ${f('commune')}. Prévue et réprimée par l’${art}. ${VER('à vérifier dans la base NATINF')}`)]; })
+      : [p(M('Infractions : cochez-les dans la rubrique « Faits »'))]],
+    ['CLÔTURE',[p('Nous avons rendu compte à l’Officier de police judiciaire, à la demande duquel le présent rapport est rédigé et lui est transmis.')]],
+  ];},
+  vig:['Citer les propos outrageants mot pour mot, entre guillemets.','Décrire précisément les actes de résistance violente (rébellion) et les blessures des militaires (certificat médical, ITT).','Le militaire outragé ou blessé est victime : il ne doit pas mener seul la procédure ; en rendre compte à l’OPJ.','Notification des droits par l’OPJ ou, sous son contrôle, par un APJ (art. 63-1 CPP).','Menottage motivé (art. 803 CPP).','Identifier les témoins (civils, caméra-piéton si disponible).']
+},
+{ id:'vol', reqInline:true, cat:'pers', nom:'Vol à l’étalage', sous:'Retenue par le magasin, restitution, plainte', titre:'RAPPORT D’INFRACTION',
+  deps:['suiteVol','requerant'], hide:(k, v) => (['heureInterp','menottage'].includes(k) && !/interpellation/.test(v.suiteVol || '')) || (['service','vehService'].includes(k) && !!v.requerant) || (k === 'heureArrivee' && !v.requerant),
+  groups:[REDAC,['Saisine',SAIS_KEYS],
+    ['Établissement',['magasin','magasinAdr','agentSec','retenue','video','plainteMag']],
+    ['Objets',['objets','valeur','restitution']],
+    ['Mis en cause',PERS_KEYS.concat(['declaration'])],
+    ['Suites',['suiteVol','heureInterp','menottage','heureAvis','heurePres']]],
+  body:x=>{ const {f,q,d,h,g,has,de,a} = x; const interp = /interpellation/.test(x.f('suiteVol')); return [
+    ['SAISINE',[saisinePers(x, `un vol à l’étalage au sein de l’établissement ${f('magasin')}, ${f('magasinAdr')}`)]],
+    ['CONSTATATIONS',[
+      p(`Sur place, nous sommes accueillis par ${f('agentSec')}. L’auteur présumé des faits a été ${f('retenue')}.`),
+      p(`${g.Int} est identifié${g.e} comme étant ${identite(x)} (${f('pIdentite')}).`),
+      p(`Il nous est indiqué qu’${g.il} a dissimulé et tenté de sortir sans les régler les objets suivants : ${f('objets')}, d’une valeur totale de ${f('valeur')} euros. Situation des objets : ${f('restitution')}.`),
+      p(`Vidéoprotection : ${f('video')}.` + (has('declaration') ? ` ${g.Int} déclare spontanément : ${q('declaration')}.` : '')),
+      p(`Plainte : ${f('plainteMag')}.`)]],
+    ['MESURES PRISES',[
+      b(`À ${h('heureAvis')}, nous rendons compte ${a('opjGrade')} ${f('opjNom')}, Officier de police judiciaire, qui décide de la suite suivante : ${f('suiteVol')}.`),
+      ...(interp ? [b(`À ${h('heureInterp')}, vu l’article 73 du Code de procédure pénale, nous procédons à l’interpellation de ${g.int}. ${g.Il} est ${f('menottage')}.`), b(`À ${h('heurePres')}, ${g.int} est présenté${g.e} à l’OPJ pour la suite de la procédure.`)] : [])]],
+    ['INFRACTION CONSTATÉE',[ind(`Vol – NATINF ${M('NATINF')} – le ${d('dateFaits')}, ${f('magasin')}, ${f('commune')} (INSEE : ${f('insee')}). Prévu par l’art. 311-1 et réprimé par l’art. 311-3 du Code pénal. ${VER('à vérifier dans la base NATINF')}`)]],
+    ['CLÔTURE',[p('Le présent rapport est transmis à l’Officier de police judiciaire.')]],
+  ];},
+  vig:['Préciser qui a appréhendé l’auteur (agent de sécurité, art. 73 CPP) et depuis quand il est retenu.','Lister les objets avec leur valeur ; noter s’ils sont revendables.','Demander la conservation des images de vidéoprotection.','Recueillir la plainte du responsable, ou noter son refus.','La suite (interpellation, convocation, amende forfaitaire) relève de l’OPJ et des instructions du parquet.']
+},
+{ id:'degrad', reqInline:true, cat:'pers', nom:'Dégradations', sous:'Bien dégradé, préjudice, auteur identifié ou non', titre:'RAPPORT D’INFRACTION',
+  deps:['auteur','suiteDeg','requerant'], hide:(k, v) => (PERS_KEYS.concat(['declaration']).includes(k) && /inconnu/.test(v.auteur || '')) || (['heureInterp'].includes(k) && !/interpellation/.test(v.suiteDeg || '')) || (['service','vehService'].includes(k) && !!v.requerant) || (k === 'heureArrivee' && !v.requerant),
+  groups:[REDAC,['Saisine',SAIS_KEYS],
+    ['Constatations',['heureConst','lieuFaits','bienDeg','proprio','degats','estimation','photos','temoins','natDeg']],
+    ['Auteur',['auteur'].concat(PERS_KEYS, ['declaration'])],
+    ['Suites',['plainteVict','suiteDeg','heureInterp','heureAvis','heurePres']]],
+  body:x=>{ const {f,q,d,h,g,has,de,a} = x; const inc = /inconnu/.test(x.f('auteur')), nat = x.f('natDeg');
+    const art = /léger/.test(nat) ? 'Prévue et réprimée par l’art. R. 635-1 du Code pénal (contravention de 5e classe)' : /tag/.test(nat) ? 'Prévue et réprimée par l’art. 322-1 al. 2 du Code pénal' : 'Prévue et réprimée par l’art. 322-1 al. 1 du Code pénal';
+    return [
+    ['SAISINE',[saisinePers(x, `des dégradations ${f('lieuFaits')}`)]],
+    ['CONSTATATIONS',[
+      p(`À ${h('heureConst')}, ${f('lieuFaits')}, nous constatons les dégradations suivantes sur ${f('bienDeg')}, appartenant à ${f('proprio')} : ${f('degats')}. Le préjudice est estimé à ${f('estimation')} euros. ${f('photos').charAt(0).toUpperCase() + f('photos').slice(1)}.`),
+      ...(has('temoins') ? [p(`Témoins : ${f('temoins')}.`)] : []),
+      p(inc ? 'L’auteur des faits n’est pas identifié à ce stade.' : `L’auteur présumé des faits, présent sur les lieux, est identifié comme étant ${identite(x)} (${f('pIdentite')}).` + (has('declaration') ? ` ${g.Il} déclare spontanément : ${q('declaration')}.` : '')),
+      p(`Plainte : ${f('plainteVict')}.`)]],
+    ['MESURES PRISES',[
+      b(`À ${h('heureAvis')}, nous rendons compte ${a('opjGrade')} ${f('opjNom')}, Officier de police judiciaire, qui décide de la suite suivante : ${f('suiteDeg')}.`),
+      ...(/interpellation/.test(x.f('suiteDeg')) ? [b(`À ${h('heureInterp')}, vu l’article 73 du Code de procédure pénale, nous procédons à l’interpellation de ${g.int}.`), b(`À ${h('heurePres')}, ${g.int} est présenté${g.e} à l’OPJ pour la suite de la procédure.`)] : [])]],
+    ['INFRACTION CONSTATÉE',[ind(`${nat ? nat.charAt(0).toUpperCase() + nat.slice(1) : M('Nature de l’infraction')} – NATINF ${M('NATINF')} – le ${d('dateFaits')} à ${h('heureConst')}, ${f('lieuFaits')}, ${f('commune')} (INSEE : ${f('insee')}). ${art}. ${VER('à vérifier dans la base NATINF')}`)]],
+    ['CLÔTURE',[p('Le présent rapport est transmis à l’Officier de police judiciaire.')]],
+  ];},
+  vig:['Décrire précisément les dégâts et photographier avant toute réparation.','Identifier le propriétaire et estimer le préjudice (devis, facture à fournir).','Dommage léger : contravention (R. 635-1) ; sinon délit (322-1) : faire qualifier par l’OPJ.','Rechercher témoins et vidéoprotection.','Recueillir la plainte de la victime, ou noter son refus.']
+});
+Object.assign(CHRONO, {
+  ipm:     [['heureConst','Constatations'],['heureDep','Dépistage'],['heureAvis','Compte rendu à l’OPJ'],['heureUnite','Arrivée à l’unité'],['heureMed','Examen médical'],['heureCS','Chambre de sûreté'],['heureFin','Fin de rétention']],
+  outrage: [['heureSaisine','Sollicitation'],['heureArrivee','Arrivée sur les lieux'],['heureFaits','Faits'],['heureInterp','Interpellation (début de GAV)'],['heureAvis','Compte rendu à l’OPJ'],['heureUnite','Arrivée à l’unité'],['heureNotif','Notification des droits'],['heurePres','Présentation à l’OPJ']],
+  vol:     [['heureSaisine','Sollicitation'],['heureArrivee','Arrivée sur les lieux'],['heureAvis','Compte rendu à l’OPJ'],['heureInterp','Interpellation'],['heurePres','Présentation à l’OPJ']],
+  degrad:  [['heureSaisine','Sollicitation'],['heureArrivee','Arrivée sur les lieux'],['heureConst','Constatations'],['heureAvis','Compte rendu à l’OPJ'],['heureInterp','Interpellation'],['heurePres','Présentation à l’OPJ']],
+});
+Object.assign(TITLE_KEYS, { ipm:['pNom','lieuPublic'], outrage:['pNom','lieuFaits'], vol:['pNom','magasin'], degrad:['pNom','bienDeg','lieuFaits'] });
+
 purgeOld();
 if (curReport()) openReport(state.curId);
 else { const last = state.reports.filter(r => r.status === 'encours').sort((a,b) => b.updated - a.updated)[0]; if (last) openReport(last.id); else newReport(state.cur); }
