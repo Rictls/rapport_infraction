@@ -61,6 +61,30 @@ header.top small{opacity:.75;font-weight:400}
 .selbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:#f3f6fc;border:1px solid #cfdbef;border-radius:10px;padding:8px 10px;font-size:13px;margin:6px 0 4px}
 .selbar .btn{margin-left:auto}.btn[disabled]{opacity:.45;cursor:default}
 .sent{color:#1e6b3e;font-weight:600}
+/* ---- Page d'accueil (v2.22) ---- */
+#home{display:none}
+body.home #home{display:block}
+body.home .models,body.home .tabs,body.home main{display:none!important}
+.hwrap{max-width:720px;margin:0 auto;padding:14px 14px 40px;display:flex;flex-direction:column;gap:12px}
+.hello{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:3px}
+.hello b{font-size:16px}.hello small{color:var(--mute);font-size:13px}
+.tile{display:flex;align-items:center;gap:14px;border:0;border-radius:16px;padding:18px 16px;text-align:left;font:inherit;color:#fff;background:var(--navy);box-shadow:0 2px 8px rgba(20,30,60,.12);cursor:pointer;width:100%}
+.tile .tic{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.tile .tic svg{width:28px;height:28px}
+.tile .tt{flex:1;min-width:0}.tile .tt b{display:block;font-size:18px}.tile .tt small{display:block;font-size:13px;opacity:.85;margin-top:2px}
+.tile .tn{font-size:26px;font-weight:700}
+.tile.enc{background:#fff;color:var(--ink);border:2px solid #e8b84a}.tile.enc .tic{background:#fff4d6;color:#7a5600}.tile.enc small{color:#7a5600;opacity:1}
+.tile.arc{background:#fff;color:var(--ink);border:1px solid var(--line)}.tile.arc .tic{background:#e3f1e8;color:#1e6b3e}.tile.arc small{color:var(--mute);opacity:1}.tile.arc .tn{color:#1e6b3e}
+.halert{background:#fff4d6;color:#7a5600;border-radius:10px;padding:10px 12px;font-size:13.5px;border:0;text-align:left;font:inherit;cursor:pointer}
+.hbar{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.hbar b{flex:1;font-size:16px}
+.backb{border:1px solid var(--line);background:#fbfcfe;border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;font-weight:600;color:var(--navy2);cursor:pointer;flex:0 0 auto}
+.hwrap .newgrid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.hwrap .newb{padding:14px 12px;font-size:14.5px}
+@media (max-width:520px){.hwrap .newgrid{grid-template-columns:1fr 1fr}.hwrap .newb{font-size:13.5px;padding:12px 9px}}
+.curbar .backb{align-self:stretch}
+@media (max-width:520px){.curbar .backb{padding:6px 8px;font-size:13px}.curbar .picker .ico{display:none}.curbar{gap:6px}}
+@media (min-width:901px){body.home #home{flex:1 1 auto;overflow-y:auto;min-height:0}}
 /* ---- Aération de la saisie (v2.12) ---- */
 .fields{gap:20px;padding:6px 16px 18px}
 label.f,.learn{gap:7px;font-size:13px}
@@ -198,10 +222,13 @@ dialog h2{margin:0 0 10px;color:var(--navy);font-size:18px}
 <body>
 <header class="top">
   <h1>Rapports APJA <small>· hors ligne</small></h1>
+  <button class="iconbtn" id="btnOpj" title="Liste des OPJ">OPJ</button>
   <button class="iconbtn" id="btnProfil" title="Profil et unité">Profil</button>
   <button class="iconbtn" id="btnParam" title="Paramètres">⚙︎</button>
 </header>
+<section id="home" aria-live="polite"></section>
 <nav class="models" id="models"></nav>
+<dialog id="dlgOpj"><h2>Officiers de police judiciaire</h2><p class="hint">Les OPJ de vos vacations. Dans chaque rapport, vous choisissez l’OPJ dans la partie Rédaction.</p><div id="opjBody"></div><div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" id="closeOpj">Fermer</button></div></dialog>
 <dialog id="dlgCat" style="max-width:640px"><h2>Catalogue des infractions</h2><div id="catBody"></div><div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn alt" id="closeCat">Fermer</button></div></dialog>
 <dialog id="dlgModels" style="max-width:760px"><h2>Mes rapports</h2><div id="mlist"></div><div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn alt" id="closeModels">Fermer</button></div></dialog>
 <nav class="tabs" id="tabs">
@@ -1598,7 +1625,6 @@ function nowHM(){ const d = new Date(); return pad(d.getHours()) + ':' + pad(d.g
 /* ---- Saisie rapide : dates du jour et patrouille reprise d'un rapport à l'autre ---- */
 const PATROL = ['dateFaits','service','vehService','commune','insee','equipiers'];
 function prefill(m, dv){
-  if (!dv._init && !dv.opjNom) { const o = opjList().find(x => x.id === state.profil.lastOpj); if (o) setOpj(dv, o); }
   if (m.id === 'route' && dv.resFichiers && !dv.resFich) { dv.resFich = [dv.resFichiers]; }
   if (dv._init) return; dv._init = true;
   const keys = new Set(m.groups.flatMap(g => g[1]));
@@ -1719,7 +1745,7 @@ function opjList(){ const P = state.profil; if (!Array.isArray(P.opjs)) P.opjs =
     delete P.opjGrade; delete P.opjNom; delete P.opjResidence; }
   return P.opjs; }
 const opjLabel = o => [o.grade, o.nom].filter(Boolean).join(' ') + (o.res ? ' – ' + o.res : '');
-function setOpj(dv, o){ if (o) { Object.assign(dv, { opjGrade: o.grade, opjNom: o.nom, opjResidence: o.res, _opjId: o.id }); state.profil.lastOpj = o.id; }
+function setOpj(dv, o){ if (o) { Object.assign(dv, { opjGrade: o.grade, opjNom: o.nom, opjResidence: o.res, _opjId: o.id }); }
   else { delete dv.opjGrade; delete dv.opjNom; delete dv.opjResidence; delete dv._opjId; } }
 function opjForm(onSave, o){ const f = document.createElement('div'); f.className = 'eqcard';
   f.innerHTML = `<div class="eqgrid"><label class="f"><span>Grade</span><input data-k="grade" list="dlGrades" placeholder="choisir ou saisir"></label><label class="f"><span>Prénom NOM</span><input data-k="nom"></label></div>
@@ -1737,7 +1763,7 @@ function opjSelector(dv, onchange){
     sel.onchange = () => { if (sel.value === '__new') { box.appendChild(opjForm(v => { if (v) { v.id = 'o' + Date.now().toString(36); L.push(v); setOpj(dv, v); toast('OPJ ajouté'); } persist(); onchange(); draw(); })); return; }
       setOpj(dv, L.find(o => o.id === sel.value)); persist(); onchange(); };
     box.appendChild(sel);
-    const h = document.createElement('div'); h.className = 'hint'; h.textContent = L.length ? 'Choisissez l’OPJ de permanence pour ce rapport. La liste se gère dans le Profil.' : 'Ajoutez les OPJ de vos vacations : ils seront ensuite proposés dans tous les rapports.'; box.appendChild(h); };
+    const h = document.createElement('div'); h.className = 'hint'; h.textContent = L.length ? 'Choisissez l’OPJ pour ce rapport. La liste se gère avec le bouton « OPJ » en haut de l’écran.' : 'Ajoutez les OPJ de vos vacations : ils seront ensuite proposés dans tous les rapports.'; box.appendChild(h); };
   draw(); return box; }
 function opjManager(){ const box = document.createElement('div'); box.className = 'eqbox'; box.style.marginTop = '6px';
   const draw = () => { const L = opjList(); box.innerHTML = '<div class="eqhead">Officiers de police judiciaire (vacations)</div>';
@@ -1759,7 +1785,6 @@ function renderProfil(){
     }
     persist(); refresh();
   })));
-  box.appendChild(opjManager());
 }
 function saveUnitPair(){ ensureLists(); const P = state.profil;
   if (P.unite) { P.units[P.unite] = { compagnie: P.compagnie || '', codeUnite: P.codeUnite || '' }; remember('unite', P.unite); }
@@ -1787,43 +1812,72 @@ function repMissing(r){ const sv = [state.cur, state.data[r.m]]; state.cur = r.m
   let n = 0, e = 0; try { const t = toText(build()); n = (t.match(/« [^»]* »/g) || []).length; e = checkChrono(cur(), vals()).E.length; } catch(x) {}
   state.cur = sv[0]; if (sv[1]) state.data[r.m] = sv[1]; return { n, e }; }
 const fmtAgo = ts => { const d = new Date(ts); return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }); };
-function openReports(){
+const VIEW = { v: 'home' };
+function openReports(){ showHome('enc'); }
+function showReport(id){ if (id) openReport(id); VIEW.v = 'report'; document.body.classList.remove('home'); window.scrollTo(0, 0); }
+function showHome(v){ VIEW.v = v || 'home'; document.body.classList.add('home'); renderHome(); window.scrollTo(0, 0); const h = $('#home'); if (h) h.scrollTop = 0; }
+function goOpjField(){ const w = document.querySelector('#form [data-key="opj"]'); if (!w) return; const det = w.closest('details'); if (det && !det.open) det.open = true;
+  w.scrollIntoView({ behavior: 'smooth', block: 'center' }); w.classList.add('flash'); setTimeout(() => w.classList.remove('flash'), 1400); }
+const HICO = { plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  pen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
+  box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM3 4h18v3H3zM10 11h4"/></svg>' };
+function repItem(r){ const t = repTitle(r), m = MODELS.find(x => x.id === r.m) || { cat:'route' }, ms = r.status === 'encours' ? repMissing(r) : null, arc = r.status === 'final';
+  const opj = r.data && r.data.opjNom ? ' · OPJ ' + [r.data.opjGrade, r.data.opjNom].filter(Boolean).join(' ') : (arc ? '' : ' · <b style="color:var(--red)">OPJ à choisir</b>');
+  return `<div class="ritem">${arc ? `<label class="rsel" aria-label="Sélectionner"><input type="checkbox" data-sel="${r.id}" ${SEL.has(r.id) ? 'checked' : ''}></label>` : '<span></span>'}<button type="button" class="rmain" data-open="${r.id}"><span class="ico ${m.cat}">${ICONS[m.cat]}</span>
+    <span class="rt"><b>${esc(t.type)}</b><span>${esc(t.det)}</span><small>${esc(t.when)}${opj}${arc ? ' · finalisé le ' + esc(fmtAgo(r.finalAt || r.updated)) : ''}${r.sentAt ? ' · <b class="sent">✉ envoyé le ' + esc(fmtAgo(r.sentAt)) + '</b>' : (arc ? ' · <b style="color:#7a5600">non envoyé</b>' : '')}</small></span>
+    ${ms ? `<span class="rbadge ${ms.n || ms.e ? '' : 'ok'}">${ms.e ? '✖ ' + ms.e + ' · ' : ''}${ms.n ? ms.n + ' à compléter' : 'prêt à envoyer'}</span>` : '<span class="rbadge ok">✓ finalisé</span>'}</button>
+    <div class="ract">${arc ? `<button type="button" class="lnk" data-reo="${r.id}">Rouvrir</button>` : `<button type="button" class="lnk" data-fin="${r.id}">Finaliser</button>`}<button type="button" class="lnk red" data-del="${r.id}">Supprimer</button></div></div>`; }
+function renderHome(){
+  const H = $('#home'), v = VIEW.v, P = state.profil;
   const enc = state.reports.filter(r => r.status === 'encours').sort((a,b) => b.updated - a.updated);
   const fin = state.reports.filter(r => r.status === 'final').sort((a,b) => (b.finalAt || b.updated) - (a.finalAt || a.updated));
-  const item = r => { const t = repTitle(r), m = MODELS.find(x => x.id === r.m) || { cat:'route' }, ms = r.status === 'encours' ? repMissing(r) : null;
-    return `<div class="ritem ${r.id === state.curId ? 'on' : ''}"><label class="rsel" aria-label="Sélectionner"><input type="checkbox" data-sel="${r.id}" ${SEL.has(r.id) ? 'checked' : ''}></label><button type="button" class="rmain" data-open="${r.id}"><span class="ico ${m.cat}">${ICONS[m.cat]}</span>
-      <span class="rt"><b>${esc(t.type)}</b><span>${esc(t.det)}</span><small>${esc(t.when)}${r.status === 'final' ? ' · finalisé le ' + esc(fmtAgo(r.finalAt || r.updated)) : ' · modifié ' + esc(fmtAgo(r.updated))}${r.sentAt ? ' · <b class="sent">✉ envoyé le ' + esc(fmtAgo(r.sentAt)) + '</b>' : ''}</small></span>
-      ${ms ? `<span class="rbadge ${ms.n || ms.e ? '' : 'ok'}">${ms.e ? '✖ ' + ms.e + ' · ' : ''}${ms.n ? ms.n + ' à compléter' : 'complet'}</span>` : '<span class="rbadge ok">✓ finalisé</span>'}</button>
-      <div class="ract">${r.status === 'encours' ? `<button type="button" class="lnk" data-fin="${r.id}">Finaliser</button>` : `<button type="button" class="lnk" data-reo="${r.id}">Rouvrir</button>`}<button type="button" class="lnk red" data-del="${r.id}">Supprimer</button></div></div>`; };
-  $('#mlist').innerHTML = `<div class="cat">Nouveau rapport</div><div class="newgrid">${CATS.map(([c]) => MODELS.filter(x => x.cat === c).sort((a,b) => ORD.indexOf(a.id) - ORD.indexOf(b.id)).map(x => `<button type="button" class="newb" data-new="${x.id}"><span class="ico ${c}">${ICONS[c]}</span>${esc(x.nom)}</button>`).join('')).join('')}</div>
-    ${state.reports.length ? `<div class="selbar"><span>Sélection :</span><button type="button" class="lnk" data-pick="sent">envoyés</button><button type="button" class="lnk" data-pick="final">finalisés</button><button type="button" class="lnk" data-pick="none">aucun</button><button type="button" class="btn danger sm" id="delSel" ${SEL.size ? '' : 'disabled'}>Supprimer la sélection (${SEL.size})</button></div>` : ''}
-    <div class="cat">En cours (${enc.length})</div>${enc.length ? enc.map(item).join('') : '<p class="hint">Aucun rapport en cours.</p>'}
-    <div class="cat">Finalisés (${fin.length})</div>${fin.length ? fin.map(item).join('') : '<p class="hint">Aucun rapport finalisé.</p>'}
-`;
-  const L = $('#mlist');
-  L.querySelectorAll('[data-new]').forEach(b => b.onclick = () => { $('#dlgModels').close(); newReport(b.dataset.new); toast('Nouveau rapport : ' + MODELS.find(x => x.id === b.dataset.new).nom); });
-  L.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { $('#dlgModels').close(); openReport(b.dataset.open); });
-  L.querySelectorAll('[data-fin]').forEach(b => b.onclick = async () => { await finalizeReport(b.dataset.fin); openReports(); });
-  L.querySelectorAll('[data-reo]').forEach(b => b.onclick = () => { const r = state.reports.find(x => x.id === b.dataset.reo); r.status = 'encours'; delete r.finalAt; persist(); renderModels(); openReports(); });
-  L.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => { const r = state.reports.find(x => x.id === b.dataset.del); const t = repTitle(r);
-    if (!await ask(`Supprimer définitivement ce rapport ?\n${t.type} – ${t.det} – ${t.when}`)) return; deleteReport(r.id); openReports(); });
-  L.querySelectorAll('[data-sel]').forEach(c => c.onchange = () => { if (c.checked) SEL.add(c.dataset.sel); else SEL.delete(c.dataset.sel); openReports(); });
-  L.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => { SEL.clear(); const k = b.dataset.pick;
-    state.reports.forEach(r => { if ((k === 'sent' && r.sentAt) || (k === 'final' && r.status === 'final')) SEL.add(r.id); }); openReports(); });
+  const back = t => `<div class="hbar"><button type="button" class="backb" data-go="home">← Accueil</button><b>${t}</b></div>`;
+  let h = '';
+  if (v === 'new') {
+    h = back('Nouveau rapport') + CATS.map(([c, lib]) => `<div class="cat">${esc(lib)}</div><div class="newgrid">${MODELS.filter(x => x.cat === c).sort((a,b) => ORD.indexOf(a.id) - ORD.indexOf(b.id)).map(x => `<button type="button" class="newb" data-new="${x.id}"><span class="ico ${c}">${ICONS[c]}</span>${esc(x.nom)}</button>`).join('')}</div>`).join('');
+  } else if (v === 'enc') {
+    h = back('Rapports en cours (' + enc.length + ')') + (enc.length ? enc.map(repItem).join('') : '<p class="hint">Aucun rapport en cours.</p>');
+  } else if (v === 'arc') {
+    const days = P.purgeDays ?? 7;
+    h = back('Rapports archivés (' + fin.length + ')') + `<p class="hint" style="margin:0">Rapports finalisés. ${days ? 'Suppression automatique ' + days + ' jour(s) après la finalisation (réglage dans ⚙).' : 'Pas de suppression automatique (réglage dans ⚙).'}</p>`
+      + (fin.length ? `<div class="selbar"><span>Sélection :</span><button type="button" class="lnk" data-pick="sent">envoyés</button><button type="button" class="lnk" data-pick="final">tous</button><button type="button" class="lnk" data-pick="none">aucun</button><button type="button" class="btn danger sm" id="delSel" ${SEL.size ? '' : 'disabled'}>Supprimer la sélection (${SEL.size})</button></div>` + fin.map(repItem).join('') : '<p class="hint">Aucun rapport archivé.</p>');
+  } else {
+    let nOk = 0; const nTodo = enc.filter(r => { const m = repMissing(r); if (!m.n && !m.e) { nOk++; return false; } return true; }).length;
+    const nSent = fin.filter(r => r.sentAt).length, nUns = fin.length - nSent;
+    const who = [(P.redGrade || '') + (P.redReserve === 'oui' && P.redGrade && !/\(R\)/.test(P.redGrade) ? ' (R)' : ''), P.redNom || ''].filter(x => x && x.trim()).join(' ');
+    const dt = new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+    h = `<div class="hello">${who ? '<b>' + esc(who) + '</b>' : '<b>Bienvenue</b>'}<small>${esc([P.unite, dt].filter(Boolean).join(' · '))}</small>${who ? '' : '<small>Commencez par renseigner votre <a href="#" data-go="profil">Profil</a>.</small>'}</div>
+      <button type="button" class="tile" data-go="new"><span class="tic">${HICO.plus}</span><span class="tt"><b>Nouveau rapport</b><small>${MODELS.length} types : routier, VIF, IPM, outrage…</small></span></button>
+      <button type="button" class="tile enc" data-go="enc"><span class="tic">${HICO.pen}</span><span class="tt"><b>Rapports en cours</b><small>${enc.length ? [nTodo ? nTodo + ' à compléter' : '', nOk ? nOk + ' prêt(s) à finaliser' : ''].filter(Boolean).join(' · ') : 'aucun pour l’instant'}</small></span><span class="tn">${enc.length}</span></button>
+      <button type="button" class="tile arc" data-go="arc"><span class="tic">${HICO.box}</span><span class="tt"><b>Rapports archivés</b><small>finalisés${nSent ? ' · ' + nSent + ' envoyé(s)' : ''}${(P.purgeDays ?? 7) ? ' · suppression auto. ' + (P.purgeDays ?? 7) + ' j' : ''}</small></span><span class="tn">${fin.length}</span></button>
+      ${nUns ? `<button type="button" class="halert" data-go="arc">⚠ ${nUns} rapport(s) finalisé(s) pas encore envoyé(s).</button>` : ''}`;
+  }
+  H.innerHTML = '<div class="hwrap">' + h + '</div>';
+  H.querySelectorAll('[data-go]').forEach(b => b.onclick = e => { e.preventDefault(); const g = b.dataset.go; if (g === 'profil') { $('#btnProfil').click(); return; } if (g !== 'arc') SEL.clear(); showHome(g); });
+  H.querySelectorAll('[data-new]').forEach(b => b.onclick = () => { newReport(b.dataset.new); showReport(); toast('Nouveau rapport : ' + MODELS.find(x => x.id === b.dataset.new).nom); });
+  H.querySelectorAll('[data-open]').forEach(b => b.onclick = () => showReport(b.dataset.open));
+  H.querySelectorAll('[data-fin]').forEach(b => b.onclick = () => finalizeReport(b.dataset.fin));
+  H.querySelectorAll('[data-reo]').forEach(b => b.onclick = () => { const r = state.reports.find(x => x.id === b.dataset.reo); r.status = 'encours'; delete r.finalAt; persist(); renderModels(); showReport(r.id); toast('Rapport rouvert'); });
+  H.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => { const r = state.reports.find(x => x.id === b.dataset.del); const t = repTitle(r);
+    if (!await ask(`Supprimer définitivement ce rapport ?\n${t.type} – ${t.det} – ${t.when}`)) return; SEL.delete(r.id); deleteReport(r.id); renderHome(); });
+  H.querySelectorAll('[data-sel]').forEach(c => c.onchange = () => { if (c.checked) SEL.add(c.dataset.sel); else SEL.delete(c.dataset.sel); renderHome(); });
+  H.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => { SEL.clear(); const k = b.dataset.pick;
+    state.reports.forEach(r => { if ((k === 'sent' && r.sentAt) || (k === 'final' && r.status === 'final')) SEL.add(r.id); }); renderHome(); });
   const ds = $('#delSel'); if (ds) ds.onclick = async () => { const ids = [...SEL].filter(id => state.reports.some(r => r.id === id)); if (!ids.length) return;
-    const nEnc = ids.filter(id => state.reports.find(r => r.id === id).status === 'encours').length;
-    if (!await ask(`Supprimer définitivement ${ids.length} rapport(s) de cet appareil ?${nEnc ? '\nAttention : ' + nEnc + ' rapport(s) encore en cours.' : ''}`)) return;
-    ids.forEach(deleteReport); SEL.clear(); toast(ids.length + ' rapport(s) supprimé(s)'); openReports(); };
-  if (!$('#dlgModels').open) $('#dlgModels').showModal();
+    const nUn = ids.filter(id => !state.reports.find(r => r.id === id).sentAt).length;
+    if (!await ask(`Supprimer définitivement ${ids.length} rapport(s) de cet appareil ?${nUn ? '\nAttention : ' + nUn + ' rapport(s) pas encore envoyé(s).' : ''}`)) return;
+    ids.forEach(deleteReport); SEL.clear(); toast(ids.length + ' rapport(s) supprimé(s)'); renderHome(); };
 }
 const SEL = new Set();
 function deleteReport(id){ const i = state.reports.findIndex(r => r.id === id); if (i < 0) return; state.reports.splice(i, 1);
-  if (id === state.curId) { const nxt = state.reports.filter(r => r.status === 'encours').sort((a,b) => b.updated - a.updated)[0]; if (nxt) openReport(nxt.id); else newReport(state.cur); }
+  if (id === state.curId) { state.curId = null; const nxt = state.reports.filter(r => r.status === 'encours').sort((a,b) => b.updated - a.updated)[0]; if (nxt) openReport(nxt.id); else persist(); if (VIEW.v === 'report') showHome('enc'); }
   else { persist(); renderModels(); } }
 async function finalizeReport(id){
-  const r = state.reports.find(x => x.id === id); if (!r) return; const ms = repMissing(r);
+  const r = state.reports.find(x => x.id === id); if (!r) return;
+  if (!(r.data && r.data.opjNom)) { showReport(id); toast('Choisissez d’abord l’OPJ (partie Rédaction)'); setTimeout(goOpjField, 150); return; }
+  const ms = repMissing(r);
   if ((ms.n || ms.e) && !await ask(`Ce rapport contient encore ${ms.n} champ(s) à compléter${ms.e ? ' et ' + ms.e + ' erreur(s) de dates ou heures' : ''}.\nLe marquer quand même comme finalisé ?`)) return;
-  r.status = 'final'; r.finalAt = Date.now(); persist(); renderModels(); toast('Rapport finalisé');
+  r.status = 'final'; r.finalAt = Date.now(); persist(); renderModels(); if (VIEW.v !== 'report') renderHome(); toast('Rapport finalisé');
 }
 function purgeOld(){ const days = state.profil.purgeDays ?? 7; if (!days) return; const lim = Date.now() - days * 86400000;
   state.reports = state.reports.filter(r => !(r.status === 'final' && (r.finalAt || r.updated) < lim)); }
@@ -1831,12 +1885,13 @@ function purgeOld(){ const days = state.profil.purgeDays ?? 7; if (!days) return
 function renderModels(){
   const m = cur(), r = curReport(), t = r ? repTitle(r) : { det: '', when: '' };
   const nEnc = state.reports.filter(x => x.status === 'encours').length;
-  $('#models').innerHTML = `<div class="curbar"><button class="picker" id="btnModels" aria-label="Mes rapports">
+  if (!r) { $('#models').innerHTML = ''; return; }
+  $('#models').innerHTML = `<div class="curbar"><button type="button" class="backb" id="btnHome">← Accueil</button><button class="picker" id="btnModels" aria-label="Rapports en cours">
     <span class="ico ${m.cat}">${ICONS[m.cat]}</span>
     <span class="t"><div class="n">${esc(m.nom)} ${r && r.status === 'final' ? '<span class="stfin">finalisé</span>' : '<span class="stenc">en cours</span>'}</div><div class="s">${esc(t.det)} · ${esc(t.when)}</div></span>
-    <span class="chev"><span class="lbl2">Mes rapports </span><b class="cnt">${nEnc}</b> ▾</span></button>
+    <span class="chev"><span class="lbl2">En cours </span><b class="cnt">${nEnc}</b> ▾</span></button>
     ${r && r.status === 'encours' ? '<button type="button" class="btn fin" id="btnFin">✓ Finaliser</button>' : '<button type="button" class="btn alt fin" id="btnReo">Rouvrir</button>'}</div>`;
-  $('#btnModels').onclick = openReports;
+  $('#btnModels').onclick = () => showHome('enc'); $('#btnHome').onclick = () => showHome('home');
   const bf = $('#btnFin'); if (bf) bf.onclick = () => finalizeReport(state.curId);
   const br = $('#btnReo'); if (br) br.onclick = () => { r.status = 'encours'; delete r.finalAt; persist(); renderModels(); toast('Rapport rouvert'); };
 }
@@ -1844,7 +1899,7 @@ function renderForm(){
   const m = cur(), box = $('#form'); box.innerHTML = '';
   if (!PROFIL.some(k => state.profil[k])){
     const pv = document.createElement('div'); pv.className = 'privacy';
-    pv.innerHTML = 'Commencez par renseigner votre <b>Profil</b> (unité, grade, OPJ) : il est repris dans tous les rapports.';
+    pv.innerHTML = 'Commencez par renseigner votre <b>Profil</b> (unité, grade, nom) : il est repris dans tous les rapports.';
     box.appendChild(pv);
   }
   state.data[m.id] = state.data[m.id] || {};
@@ -1938,26 +1993,28 @@ $('#btnWord').onclick = () => {
 };
 $('#btnPrint').onclick = () => window.print();
 $('#btnSend').onclick = sendReport;
-$('#btnNew').onclick = () => { newReport(state.cur); toast('Nouveau rapport : ' + cur().nom + ' (le précédent reste dans « Mes rapports »)'); };
+$('#btnNew').onclick = () => showHome('new');
 
 // Profil
 $('#closeModels').onclick = () => $('#dlgModels').close();
 $('#btnProfil').onclick = () => { renderProfil(); $('#dlgProfil').showModal(); };
-$('#closeProfil').onclick = () => { saveUnitPair(); $('#dlgProfil').close(); renderForm(); refresh(); toast('Profil enregistré'); };
+$('#btnOpj').onclick = () => { const b = $('#opjBody'); b.innerHTML = ''; b.appendChild(opjManager()); $('#dlgOpj').showModal(); };
+$('#closeOpj').onclick = () => { $('#dlgOpj').close(); if (curReport()) { renderForm(); refresh(); } if (VIEW.v !== 'report') renderHome(); };
+$('#closeProfil').onclick = () => { saveUnitPair(); $('#dlgProfil').close(); if (curReport()) { renderForm(); refresh(); } if (VIEW.v !== 'report') renderHome(); toast('Profil enregistré'); };
 // Paramètres
 $('#btnParam').onclick = () => { $('#optPurge').value = String(state.profil.purgeDays ?? 7); $('#dlgParam').showModal(); };
-$('#optPurge').onchange = e => { state.profil.purgeDays = +e.target.value; persist(); };
+$('#optPurge').onchange = e => { state.profil.purgeDays = +e.target.value; persist(); if (VIEW.v !== 'report') renderHome(); };
 $('#btnExport').onclick = () => { const blob = new Blob([JSON.stringify({ app:'Rapports APJA', v:1, date: new Date().toISOString(), reports: state.reports }, null, 1)], { type:'application/json' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Rapports_APJA_sauvegarde_' + today() + '.json'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); toast('Sauvegarde téléchargée'); };
 $('#fileImport').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const o = JSON.parse(await f.text()); if (!o || !Array.isArray(o.reports)) throw 0;
     const known = new Set(state.reports.map(r => r.id)); const add = o.reports.filter(r => r && r.id && r.m && !known.has(r.id));
-    if (!await ask(add.length + ' rapport(s) à restaurer. Continuer ?')) return; state.reports.push(...add); persist(); renderModels(); toast(add.length + ' rapport(s) restauré(s)'); }
+    if (!await ask(add.length + ' rapport(s) à restaurer. Continuer ?')) return; state.reports.push(...add); persist(); renderModels(); if (VIEW.v !== 'report') renderHome(); toast(add.length + ' rapport(s) restauré(s)'); }
   catch(x) { toast('Fichier de sauvegarde non reconnu'); } e.target.value = ''; };
 $('#closeParam').onclick = () => $('#dlgParam').close();
 $('#btnHist').onclick = async () => { if (!await ask('Vider les valeurs mémorisées dans les listes de choix des rapports ?')) return; state.profil.hist = {}; persist(); renderForm(); toast('Listes vidées'); };
 $('#btnWipe').onclick = async () => { if (!await ask('Effacer le profil et TOUS les rapports (en cours et finalisés) de cet appareil ?')) return;
   ['apja.profil','apja.data','apja.cur','apja.save','apja.reports','apja.curId'].forEach(LS.del); state.profil = {}; state.data = {}; state.checks = {}; state.reports = []; state.curId = null;
-  $('#dlgParam').close(); newReport(state.cur); toast('Données effacées'); };
+  $('#dlgParam').close(); renderModels(); showHome('home'); toast('Données effacées'); };
 
 document.getElementById('dlGrades').innerHTML = GRADES.map(g=>`<option value="${g}">`).join('');
 
@@ -2119,8 +2176,10 @@ Object.assign(CHRONO, {
 Object.assign(TITLE_KEYS, { ipm:['pNom','lieuPublic'], outrage:['pNom','lieuFaits'], vol:['pNom','magasin'], degrad:['pNom','bienDeg','lieuFaits'] });
 
 purgeOld();
+opjList();
 if (curReport()) openReport(state.curId);
-else { const last = state.reports.filter(r => r.status === 'encours').sort((a,b) => b.updated - a.updated)[0]; if (last) openReport(last.id); else newReport(state.cur); }
+else { const last = state.reports.filter(r => r.status === 'encours').sort((a,b) => b.updated - a.updated)[0]; if (last) openReport(last.id); else { state.curId = null; renderModels(); } }
+showHome('home');
 try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e) {}
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
