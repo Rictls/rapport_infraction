@@ -242,7 +242,7 @@ dialog h2{margin:0 0 10px;color:var(--navy);font-size:18px}
     <button class="btn danger" id="btnWipe">Effacer toutes les données</button>
     <button class="btn" id="closeParam">Fermer</button>
   </div>
-  <p class="hint" style="margin-top:14px">Application autonome : aucune donnée n'est envoyée sur Internet. Modèles indicatifs, à adapter aux trames du LRPGN et aux consignes de l'OPJ. Version 2.20 – novembre 2026.</p>
+  <p class="hint" style="margin-top:14px">Application autonome : aucune donnée n'est envoyée sur Internet. Modèles indicatifs, à adapter aux trames du LRPGN et aux consignes de l'OPJ. Version 2.21 – novembre 2026.</p>
 </dialog>
 <div class="toast" id="toast"></div>
 <datalist id="dlGrades"></datalist>
@@ -649,6 +649,7 @@ const F = {
   codeUnite:['Code unité','l'],
   redGrade:['Grade du rédacteur','g'],
   redReserve:['Réserviste','s',['oui','non']],
+  opj:['Officier de police judiciaire (OPJ) de la vacation','opjsel'],
   redNom:['Prénom NOM du rédacteur','t'],
   redQualite:['Qualité judiciaire','s',['Agent de police judiciaire adjoint','Agent de police judiciaire']],
   redLieu:['Détaché pour emploi à','t','ex. PORNIC'],
@@ -757,8 +758,8 @@ const F = {
 };
 const GRADES = ['Gendarme adjoint volontaire','Gendarme','Brigadier','Brigadier-chef','Maréchal des logis','Maréchal des logis-chef','Adjudant','Adjudant-chef','Major','Aspirant','Sous-lieutenant','Lieutenant','Capitaine','Commandant','Lieutenant-colonel','Colonel'];
 const QUALITES = ['Agent de police judiciaire adjoint','Agent de police judiciaire','Officier de police judiciaire'];
-const PROFIL = ['compagnie','unite','codeUnite','redGrade','redReserve','redNom','redQualite','redLieu','opjGrade','opjNom','opjResidence','bureau','mailPro'];
-const REDAC = ['Rédaction',['numPV','dossier','dateRed','heureRed','dateClos','heureClos']];
+const PROFIL = ['compagnie','unite','codeUnite','redGrade','redReserve','redNom','redQualite','redLieu','bureau','mailPro'];
+const REDAC = ['Rédaction',['opj','numPV','dossier','dateRed','heureRed','dateClos','heureClos']];
 
 /* ====================== OUTILS ====================== */
 /* ---- Fenêtres de confirmation intégrées (fonctionnent partout, y compris dans un cadre sécurisé) ---- */
@@ -1597,6 +1598,7 @@ function nowHM(){ const d = new Date(); return pad(d.getHours()) + ':' + pad(d.g
 /* ---- Saisie rapide : dates du jour et patrouille reprise d'un rapport à l'autre ---- */
 const PATROL = ['dateFaits','service','vehService','commune','insee','equipiers'];
 function prefill(m, dv){
+  if (!dv._init && !dv.opjNom) { const o = opjList().find(x => x.id === state.profil.lastOpj); if (o) setOpj(dv, o); }
   if (m.id === 'route' && dv.resFichiers && !dv.resFich) { dv.resFich = [dv.resFichiers]; }
   if (dv._init) return; dv._init = true;
   const keys = new Set(m.groups.flatMap(g => g[1]));
@@ -1708,6 +1710,45 @@ function learnInput(k, value, onchange){
     fill(''); onchange(''); persist(); };
   return wrap;
 }
+/* ====================== OPJ DE LA VACATION (liste et choix par rapport) ====================== */
+function opjList(){ const P = state.profil; if (!Array.isArray(P.opjs)) P.opjs = [];
+  if (!P._opjMig) { P._opjMig = true;               // reprise de l'ancien OPJ unique du profil
+    if (P.opjNom) { P.opjs.push({ id: 'o1', grade: P.opjGrade || '', nom: P.opjNom, res: P.opjResidence || '' });
+      state.reports.forEach(r => { if (r.data && !r.data.opjNom) Object.assign(r.data, { opjGrade: P.opjGrade || '', opjNom: P.opjNom, opjResidence: P.opjResidence || '' }); });
+      P.lastOpj = 'o1'; }
+    delete P.opjGrade; delete P.opjNom; delete P.opjResidence; }
+  return P.opjs; }
+const opjLabel = o => [o.grade, o.nom].filter(Boolean).join(' ') + (o.res ? ' – ' + o.res : '');
+function setOpj(dv, o){ if (o) { Object.assign(dv, { opjGrade: o.grade, opjNom: o.nom, opjResidence: o.res, _opjId: o.id }); state.profil.lastOpj = o.id; }
+  else { delete dv.opjGrade; delete dv.opjNom; delete dv.opjResidence; delete dv._opjId; } }
+function opjForm(onSave, o){ const f = document.createElement('div'); f.className = 'eqcard';
+  f.innerHTML = `<div class="eqgrid"><label class="f"><span>Grade</span><input data-k="grade" list="dlGrades" placeholder="choisir ou saisir"></label><label class="f"><span>Prénom NOM</span><input data-k="nom"></label></div>
+    <label class="f" style="margin-top:8px"><span>Résidence</span><input data-k="res" placeholder="ex. PORNIC"></label>
+    <div class="row" style="justify-content:flex-end;margin-top:8px"><button type="button" class="btn alt sm" data-a="no">Annuler</button><button type="button" class="btn sm" data-a="ok">Enregistrer l’OPJ</button></div>`;
+  if (o) f.querySelectorAll('[data-k]').forEach(i => i.value = o[i.dataset.k] || '');
+  f.querySelector('[data-a=ok]').onclick = () => { const v = {}; f.querySelectorAll('[data-k]').forEach(i => v[i.dataset.k] = i.value.trim());
+    if (!v.nom) { toast('Indiquez au moins le nom de l’OPJ'); return; } v.nom = v.nom.replace(/(\S+)$/, w => w.toUpperCase()); onSave(v); };
+  f.querySelector('[data-a=no]').onclick = () => onSave(null); return f; }
+function opjSelector(dv, onchange){
+  const box = document.createElement('div'); box.className = 'f learn';
+  const draw = () => { const L = opjList(); box.innerHTML = `<span class="lbl">Officier de police judiciaire (OPJ) de la vacation</span>`;
+    const sel = document.createElement('select');
+    sel.innerHTML = '<option value="">— choisir l’OPJ —</option>' + L.map(o => `<option value="${o.id}" ${dv._opjId === o.id || (!dv._opjId && dv.opjNom === o.nom) ? 'selected' : ''}>${esc(opjLabel(o))}</option>`).join('') + '<option value="__new">+ Ajouter un OPJ…</option>';
+    sel.onchange = () => { if (sel.value === '__new') { box.appendChild(opjForm(v => { if (v) { v.id = 'o' + Date.now().toString(36); L.push(v); setOpj(dv, v); toast('OPJ ajouté'); } persist(); onchange(); draw(); })); return; }
+      setOpj(dv, L.find(o => o.id === sel.value)); persist(); onchange(); };
+    box.appendChild(sel);
+    const h = document.createElement('div'); h.className = 'hint'; h.textContent = L.length ? 'Choisissez l’OPJ de permanence pour ce rapport. La liste se gère dans le Profil.' : 'Ajoutez les OPJ de vos vacations : ils seront ensuite proposés dans tous les rapports.'; box.appendChild(h); };
+  draw(); return box; }
+function opjManager(){ const box = document.createElement('div'); box.className = 'eqbox'; box.style.marginTop = '6px';
+  const draw = () => { const L = opjList(); box.innerHTML = '<div class="eqhead">Officiers de police judiciaire (vacations)</div>';
+    L.forEach((o, i) => { const r = document.createElement('div'); r.className = 'lrow'; r.innerHTML = `<span style="flex:1">${esc(opjLabel(o))}</span><button type="button" class="lnk" data-a="ed">Modifier</button><button type="button" class="lnk red" data-a="del">Retirer</button>`;
+      r.querySelector('[data-a=ed]').onclick = () => r.replaceWith(opjForm(v => { if (v) Object.assign(o, v); persist(); draw(); }, o));
+      r.querySelector('[data-a=del]').onclick = async () => { if (!await ask('Retirer ' + opjLabel(o) + ' de la liste ?')) return; L.splice(i, 1); persist(); draw(); };
+      box.appendChild(r); });
+    const add = document.createElement('button'); add.type = 'button'; add.className = 'btn alt sm'; add.textContent = '+ Ajouter un OPJ';
+    add.onclick = () => add.replaceWith(opjForm(v => { if (v) { v.id = 'o' + Date.now().toString(36); L.push(v); } persist(); draw(); }));
+    box.appendChild(add); };
+  draw(); return box; }
 function renderProfil(){
   ensureLists();
   const box = $('#profilFields'); box.innerHTML = '';
@@ -1718,6 +1759,7 @@ function renderProfil(){
     }
     persist(); refresh();
   })));
+  box.appendChild(opjManager());
 }
 function saveUnitPair(){ ensureLists(); const P = state.profil;
   if (P.unite) { P.units[P.unite] = { compagnie: P.compagnie || '', codeUnite: P.codeUnite || '' }; remember('unite', P.unite); }
@@ -1818,7 +1860,7 @@ function renderForm(){
     const det = document.createElement('details'); det.className = 'grp'; det.open = okey in state.open ? state.open[okey] : gi < 2;
     det.addEventListener('toggle', () => { state.open[okey] = det.open; });
     const sum = document.createElement('summary'); const cnt = document.createElement('span'); cnt.className = 'fill';
-    const filled = k => k === 'equipage' ? (dv.equipiers || []).some(e => e && e.nom) : (k === 'infr' || k === 'signes' || k === 'etatVictime' || k === 'mesuresVictime' || k === 'droits' || k === 'resFich' || F[k][1] === 'tags') ? (dv[k] || []).length > 0 : (dv[k] && String(dv[k]).trim());
+    const filled = k => k === 'opj' ? !!dv.opjNom : k === 'equipage' ? (dv.equipiers || []).some(e => e && e.nom) : (k === 'infr' || k === 'signes' || k === 'etatVictime' || k === 'mesuresVictime' || k === 'droits' || k === 'resFich' || F[k][1] === 'tags') ? (dv[k] || []).length > 0 : (dv[k] && String(dv[k]).trim());
     const upd = () => { const n = keys.filter(filled).length; cnt.textContent = n + '/' + keys.length; updEmpty(); };
     sum.textContent = titre; sum.appendChild(cnt); det.appendChild(sum); upd();
     const fs = document.createElement('div'); fs.className = 'fields';
@@ -1834,6 +1876,7 @@ function renderForm(){
       else if (t === 'droits') fs.appendChild(droitsEditor(dv, () => after()));
       else if (t === 'resf') fs.appendChild(resfEditor(dv, st => after(st)));
       else if (t === 'tags') fs.appendChild(genTags(dv, k, () => after()));
+      else if (t === 'opjsel') fs.appendChild(opjSelector(dv, () => after()));
       else fs.appendChild(input(k, dv[k], val => { dv[k] = val; const ch = applyLinks(m, dv, k); after(ch && F[k][1] !== 't'); if (ch && F[k][1] === 't') clearTimeout(window._lt), window._lt = setTimeout(rerender, 700); }));
       if (fs.children[n0]) fs.children[n0].dataset.key = k;
     });
@@ -1844,7 +1887,7 @@ function renderForm(){
   box.appendChild(jb); $('#btnJump').onclick = jumpEmpty; updEmpty();
 }
 const ARRK = new Set(['infr','signes','etatVictime','mesuresVictime','droits','resFich']);
-function isFilledK(dv, k){ if (k === 'equipage') return (dv.equipiers || []).some(e => e && e.nom); if (ARRK.has(k) || (F[k] && F[k][1] === 'tags')) return [].concat(dv[k] || []).length > 0; return dv[k] != null && String(dv[k]).trim() !== ''; }
+function isFilledK(dv, k){ if (k === 'opj') return !!dv.opjNom; if (k === 'equipage') return (dv.equipiers || []).some(e => e && e.nom); if (ARRK.has(k) || (F[k] && F[k][1] === 'tags')) return [].concat(dv[k] || []).length > 0; return dv[k] != null && String(dv[k]).trim() !== ''; }
 function emptyKeys(){ const dv = state.data[cur().id] || {}; return [...document.querySelectorAll('#form [data-key]')].filter(w => !isFilledK(dv, w.dataset.key)); }
 function updEmpty(){ const n = document.getElementById('nEmpty'); if (!n) return; const e = emptyKeys().length; n.textContent = e ? '(' + e + ')' : '✓'; document.getElementById('btnJump').classList.toggle('done', !e); }
 function jumpEmpty(){
